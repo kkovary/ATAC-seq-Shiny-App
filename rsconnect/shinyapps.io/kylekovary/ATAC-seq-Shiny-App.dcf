@@ -1,0 +1,12 @@
+name: ATAC-seq-Shiny-App
+title: ATAC-seq-Shiny-App
+username:
+account: kylekovary
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1176131
+bundleId: 2436365
+url: https://kylekovary.shinyapps.io/ATAC-seq-Shiny-App/
+when: 1569224917.47091
+asMultiple: FALSE
+asStatic: FALSE

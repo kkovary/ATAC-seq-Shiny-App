@@ -1,11 +1,21 @@
 library(shiny)
 library(tidyverse)
-library(readr)
+library(shinycssloaders)
+library(shinysky)
+source('Gviz_Plots.R')
+
+# Set Bioconductor repositories for shinyapps.io:
+# library(BiocManager)
+# options(repos = BiocManager::repositories())
 
 # Load data
 
+# load in genelist to speed loading up
+# reading csv is faster than rds
 data <- readRDS('lite_bc_annotated_rna_dataframe_long.RDS') %>%
   as_tibble()
+
+peaks.gr <- readRDS('All_Peaks_GenomicRanges.RDS')
 
 # Functions
 
@@ -29,6 +39,8 @@ plotrna <- function(gene_id, annotated.counts = rna.df.gg, stat.method = "loess"
     xlim(c(0,600)) +
     scale_y_continuous(limits = y.limits) +
     ggtitle(label = sprintf("%s RNA expression", unique(annotated.counts$gene.symbol))) +
-    facet_wrap( ~ transcript_id, scales = "free_y")
+    theme(aspect.ratio = 1, legend.position="bottom") + 
+    ylab('log2(TPM)') + xlab('Age (Day)') +
+    facet_wrap( ~ transcript_id, scales = "free_y", ncol = 4)
   return(gg)
 }

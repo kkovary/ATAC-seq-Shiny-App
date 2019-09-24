@@ -1,5 +1,12 @@
 ###############################################################################
-# VISUALIZATION
+# VISUALIZATION of ATAC data through R
+#
+#  Gviz exploration
+#
+#
+#
+###############################################################################
+# Setup
 ###############################################################################
 library(Gviz)
 library(GenomicRanges)
@@ -7,22 +14,98 @@ library(GenomicRanges)
 #library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(biomaRt)
 
+# colors <- c('#E181F4','#7DCD2C','#F6D7B5','#F9DAFF','#D1E8BA',
+#             '#EFE90D','#9404B4','#DC7511','#4C9006','#CB21ED',
+#             '#F2A760','#F2B9FF','#B0E57C')
+
+###############################################################################
+# Input
+###############################################################################
+
+GENE = "SYN1"
+SLOP = 250000
+GENOME = "hg38"
+
+###############################################################################
+# Functions
+###############################################################################
+
+getEnsemblCoords <- function(GENE) {
+  # Too slow, don't use
+  bm <- getBM(attributes = c("transcript_start", "transcript_end"), filters = c("hgnc_symbol"), values = c(GENE), mart = ensembl)
+  g.start <- min(bm$transcript_start)
+  g.end <- max(bm$transcript_end)
+  return(c(g.start,g.end))
+}
+
+getGvizCoords <- function(TRACK) {
+  
+  g.chr <- Gviz::seqlevels(TRACK)
+  pos <- Gviz::position(TRACK)
+  g.start <- min(pos)
+  g.end <- max(pos)
+  
+  return(list(g.chr, g.start, g.end))
+}
+
+plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, genome = "hg38", anno.gr = peaks.gr, coverage.list, ylims = c(0,100)) {
+  
+  print("creating track")
+  biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
+  
+  print("obtaining coordinates")
+  coords <- getGvizCoords(biomTrack)
+  chr <- coords[[1]]
+  start <- coords[[2]]
+  end <- coords[[3]]
+  print(as.character(coords))
+  
+  axisTrack <- GenomeAxisTrack()
+  idxTrack <- IdeogramTrack(genome = genome, chromosome = chr)
+  
+  print("filtering")
+  filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > start - slop & end(anno.gr) < end + slop] 
+  
+  print("importing peaks")
+  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks")
+  
+  print("importing coverage")
+  covTrackList <- lapply(1:length(coverage.list), function(x) {
+    DataTrack(range = coverage.list[[x]], genome = genome, 
+              type = "histogram", name = color.scheme$name[x], 
+              chromosome = chr, start = start, end = end,
+              col.histogram = colors[x],
+              fill.histogram = colors[x],
+              col.axis = "black",
+              background.title = colors[x])
+  })
+  
+  
+  plotList <- c(axisTrack, covTrackList, peakTrack, biomTrack)
+  
+  #print("plotting")
+  plotTracks(plotList, transcriptAnnotation = "name", 
+             ylim = ylims, col.title = 'black')
+  
+}
+
+###############################################################################
+# MAIN
+###############################################################################
+
 # Get BiomaRt objects
 ensembl <- useMart("ensembl",dataset="hsapiens_gene_ensembl")
 
-plotGenomeView <- function(gene.symbol = GENE, left.extension = LEFT, right.extension = RIGHT, genome = "hg38") {
-  biomTrack <- BiomartGeneRegionTrack(genome="hg38", name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
-  axisTrack <- GenomeAxisTrack()
-  peakTrack <- 
-  plotTracks(list(biomTrack,axisTrack), extend.right = right.extension, extend.left = left.extension, transcriptAnnotation = "name")
-}
+#coverage.files <- paste0("Gviz/", list.files("Gviz"))
+color.scheme <- read_csv('Color_Scheme.csv')
+coverage.files <- color.scheme$file
+strsplits <- str_split(coverage.files, "_")
+coverage.names <- sapply(strsplits, function(x) paste(x[c(5,2,3)], collapse = " ")) 
+coverage.list <- as.list(coverage.files)
+names(coverage.list) <- coverage.names
 
-plotTracks(list(biomTrack,axisTrack), extend.right = 50000, extend.left = 250000, transcriptAnnotation = "name")
+colors = color.scheme$color
 
-knownGene <- GeneRegionTrack(TxDb.Hsapiens.UCSC.hg38.knownGene)
+#plotGenomeView(coverage.list = coverage.list)
 
-knownGene <- UcscTrack(genome="hg38", chromosome = "chr1", from=2000000, to=2100000, name="UCSC Genes", track="knownGene", trackType="GeneRegionTrack",
-             rstarts="exonStarts", rends="exonEnds", gene="name", symbol="name",
-             transcript="name", strand="strand", fill="#8282d2")
 
-plotTracks(knownGene, chromosome = "chr2",  from=2000000, to=3100000, transcript, geneSymbols = T)

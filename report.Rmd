@@ -1,0 +1,35 @@
+---
+title: "ATAC-seq Report"
+output: pdf_document
+params:
+  gene: NA
+  ymax: NA
+  gvizPlot: NA
+  rnaPlot: NA
+---
+
+```{r include=FALSE}
+library(Gviz)
+library(ggplot2)
+```
+
+## Plots for `r params$gene`.
+
+```{r echo=FALSE, fig.height=12, fig.width=12}
+x <- params$gvizPlot
+
+for(i in 2:14){
+  x[[i]]@dp@pars$fontsize = 10
+  x[[i]]@name = LETTERS[i-1]
+}
+
+plotTracks(x[1:16], col.title = 'black', 
+           from = min(start(x[[2]])), to = max(end(x[[2]])))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+x <- params$rnaPlot
+eval(x)
+```
+
