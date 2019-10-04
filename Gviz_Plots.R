@@ -38,33 +38,50 @@ getEnsemblCoords <- function(GENE) {
   return(c(g.start,g.end))
 }
 
-getGvizCoords <- function(TRACK) {
+getGvizCoords <- function(gene.symbol) {
   
-  g.chr <- Gviz::seqlevels(TRACK)
-  pos <- Gviz::position(TRACK)
-  g.start <- min(pos)
+  biomTrack <- BiomartGeneRegionTrack(genome="hg38", 
+                                      name="ENSEMBL", 
+                                      biomart=ensembl, 
+                                      symbol = gene.symbol)
+  
+  g.chr <- Gviz::seqlevels(biomTrack)
+  pos <- Gviz::position(biomTrack)
+  g.beg <- min(pos)
   g.end <- max(pos)
   
-  return(list(g.chr, g.start, g.end))
+  return(list(g.chr, g.beg, g.end, biomTrack))
 }
 
-plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, genome = "hg38", anno.gr = peaks.gr, coverage.list, ylims = c(0,100)) {
+plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, 
+                           genome = "hg38", anno.gr = peaks.gr, 
+                           coverage.list, ylims = c(0,100),
+                           coords = NULL, chr = NULL,
+                           beg = NULL, END = NULL) {
   
-  print("creating track")
-  biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
+  #print("creating track")
+  #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
   
   print("obtaining coordinates")
-  coords <- getGvizCoords(biomTrack)
-  chr <- coords[[1]]
-  start <- coords[[2]]
-  end <- coords[[3]]
-  print(as.character(coords))
+  if(is.null(coords)){
+    coords <- getGvizCoords(gene.symbol)
+  }
+  
+  if(is.null(beg) & is.null(END)){
+    chr <- coords[[1]]
+    beg <- coords[[2]]
+    END <- coords[[3]]
+  }
+  
+  
+  biomTrack <- coords[[4]]
+  print(as.character(coords[1:3]))
   
   axisTrack <- GenomeAxisTrack()
   idxTrack <- IdeogramTrack(genome = genome, chromosome = chr)
   
   print("filtering")
-  filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > start - slop & end(anno.gr) < end + slop] 
+  filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
   
   print("importing peaks")
   peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks")
@@ -73,7 +90,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, genome = "hg38", ann
   covTrackList <- lapply(1:length(coverage.list), function(x) {
     DataTrack(range = coverage.list[[x]], genome = genome, 
               type = "histogram", name = color.scheme$name[x], 
-              chromosome = chr, start = start, end = end,
+              chromosome = chr, start = beg, end = END,
               col.histogram = colors[x],
               fill.histogram = colors[x],
               col.axis = "black",
@@ -83,9 +100,9 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, genome = "hg38", ann
   
   plotList <- c(axisTrack, covTrackList, peakTrack, biomTrack)
   
-  #print("plotting")
+  print("plotting")
   plotTracks(plotList, transcriptAnnotation = "name", 
-             ylim = ylims, col.title = 'black')
+             ylim = ylims, col.title = 'black', from = beg, to = END)
   
 }
 

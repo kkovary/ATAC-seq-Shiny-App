@@ -39,25 +39,46 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
   #outputOptions(output, 'dims', suspendWhenHidden = FALSE)
   
+  gvizCoords <- reactive({
+    if(length(input$gene) > 0){
+      getGvizCoords(input$gene)
+    }
+  })
+  
+  observe({
+    
+    updateSliderInput(session, 'xrange',
+                      min = gvizCoords()[[2]] - 1E5 - SLOP,
+                      max = gvizCoords()[[3]] + 1E5 + SLOP,
+                      value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
+    
+  })
+  
+  
   gvizPlot <- reactive({
+    
     plotGenomeView(
       gene.symbol = input$gene,
       coverage.list = coverage.list,
-      ylims = c(0, input$ymax)
+      ylims = c(0, input$ymax),
+      coords = gvizCoords(),
+      chr = gvizCoords()[[1]],
+      beg = input$xrange[1],
+      END = as.numeric(input$xrange[2])
     )
   })
   
   output$gviz <- renderPlot({
-    if (length(input$gene > 0)) {
+    if(sum(input$xrange) > 0) {
       gvizPlot()
     } else{
       NULL
     }
     
   })
+  
   
   ### Download Report
   output$report <- downloadHandler(
@@ -75,7 +96,7 @@ shinyServer(function(input, output, session) {
                      ymax = input$ymax,
                      gvizPlot = gvizPlot(),
                      rnaPlot = rnaPlot()
-                     )
+      )
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document

@@ -3,7 +3,7 @@
 ui <- fluidPage(
   fluidRow(
     column(4, h4('ATAC-Seq Explorer'),
-           downloadButton("report", "Download Plots")
+           downloadButton("report", "Download Summary")
            ),
     
     column(4,
@@ -15,10 +15,10 @@ ui <- fluidPage(
            ),
            sliderInput(
              'xrange',
-             label = h4('Track x-axis limits (Not yet functional)'),
-             min = 100,
-             max = 10000,
-             value = c(500,8000)
+             label = h4('Track x-axis limits'),
+             min = 0,
+             max = 0,
+             value = c(0,0)
            )
            
     ),
@@ -43,7 +43,7 @@ ui <- fluidPage(
   ),
   
   hr(),
-  
+  textOutput('xlims'),
   
   # withSpinner(
   #   uiOutput("rnaExpression.ui"),
