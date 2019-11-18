@@ -4,11 +4,11 @@ ui <- fluidPage(
   
   sidebarPanel(
     titlePanel(strong('ATAC-Seq Explorer')),
-    selectInput(
-      'accessionType',
-      h4('Accession Type'),
-      c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
-    ),
+    # selectInput(
+    #   'accessionType',
+    #   h4('Accession Type'),
+    #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
+    # ),
     selectizeInput(
       'gene',
       label = h4('Search'),

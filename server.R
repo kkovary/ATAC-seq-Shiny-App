@@ -1,6 +1,7 @@
 shinyServer(function(input, output, session) {
   geneNames <- reactive({
-    type <- input$accessionType
+    #type <- input$accessionType
+    type <- 'gene.symbol'
     unique(data[, type])
   })
   

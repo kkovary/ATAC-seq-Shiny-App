@@ -112,7 +112,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     corTrack <- AnnotationTrack(
       cor.gr[cor.gr$transcript_id == transcriptID & 
                cor.gr$mean.gene.corr >= cor_cut &
-               cor.gr$cluster.name == cluster_id,],
+               cor.gr$cluster.name %in% cluster_id,],
       name = 'Cor',
       fill = 'red',
       col = 'transparent'
