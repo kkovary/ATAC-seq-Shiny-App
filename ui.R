@@ -4,6 +4,7 @@ ui <- fluidPage(
   
   sidebarPanel(
     titlePanel(strong('ATAC-Seq Explorer')),
+    width = 2,
     # selectInput(
     #   'accessionType',
     #   h4('Accession Type'),
@@ -11,11 +12,27 @@ ui <- fluidPage(
     # ),
     selectizeInput(
       'gene',
-      label = h4('Search'),
+      label = h4('Gene Search'),
       choices = '',
       options = list(maxOptions = 5, maxItems = 1),
       multiple = TRUE
     ),
+    sliderInput(
+      'xrange',
+      label = h4('Track x-axis limits'),
+      min = 0,
+      max = 0,
+      value = c(0,0)
+    ),
+    sliderInput(
+      'ymax',
+      label = h4('Track y-axis limit'),
+      min = 0,
+      max = 1000,
+      value = 100
+    ),
+    hr(style="border-color: grey"),
+    h5('Peak-gene links'),
     selectInput(
       'transcriptID',
       label = h4('Transcript ID'),
@@ -36,20 +53,6 @@ ui <- fluidPage(
       choices = c('All',as.vector(unique(cor.gr$cluster.name))),
       multiple = FALSE
     ),
-    sliderInput(
-      'xrange',
-      label = h4('Track x-axis limits'),
-      min = 0,
-      max = 0,
-      value = c(0,0)
-    ),
-    sliderInput(
-      'ymax',
-      label = h4('Track y-axis limit'),
-      min = 0,
-      max = 1000,
-      value = 100
-    ),
     downloadButton("report", "Download Summary")
   ),
   
@@ -61,6 +64,7 @@ ui <- fluidPage(
   # ),
   mainPanel(
     #h5('ATAC-seq Tracks'),
+    width = 10,
     plotOutput('gviz', height = 1100),
     hr(),
     h5('Expression'),
