@@ -59,7 +59,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            coords = NULL, chr = NULL,
                            beg = NULL, END = NULL,
                            transcriptID = NULL,
-                           cor_cut = NULL) {
+                           cor_cut = NULL,
+                           cluster_id = NULL) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
@@ -100,12 +101,24 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               fontsize = 12)
   })
   
-  corTrack <- AnnotationTrack(
-    cor.gr[cor.gr$transcript_id == transcriptID & cor.gr$mean.gene.corr >= cor_cut,],
-    name = 'Cor',
-    fill = 'red',
-    col = 'transparent'
-  )
+  if(cluster_id == 'All'){
+    corTrack <- AnnotationTrack(
+      cor.gr[cor.gr$transcript_id == transcriptID & cor.gr$mean.gene.corr >= cor_cut,],
+      name = 'Cor',
+      fill = 'red',
+      col = 'transparent'
+    )
+  } else{
+    corTrack <- AnnotationTrack(
+      cor.gr[cor.gr$transcript_id == transcriptID & 
+               cor.gr$mean.gene.corr >= cor_cut &
+               cor.gr$cluster.name == cluster_id,],
+      name = 'Cor',
+      fill = 'red',
+      col = 'transparent'
+    )
+  }
+  
   
   plotList <- c(axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
   

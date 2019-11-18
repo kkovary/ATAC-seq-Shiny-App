@@ -30,6 +30,12 @@ ui <- fluidPage(
       max = 1,
       step = 0.05
     ),
+    selectInput(
+      'clusterID',
+      label = h4('Cluster ID'),
+      choices = c('All',as.vector(unique(cor.gr$cluster.name))),
+      multiple = FALSE
+    ),
     sliderInput(
       'xrange',
       label = h4('Track x-axis limits'),
