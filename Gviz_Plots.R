@@ -86,7 +86,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
   
   print("importing peaks")
-  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks")
+  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks", col = 'transparent')
   
   print("importing coverage")
   covTrackList <- lapply(1:length(coverage.list), function(x) {
@@ -96,13 +96,15 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               col.histogram = colors[x],
               fill.histogram = colors[x],
               col.axis = "black",
-              background.title = colors[x])
+              background.title = colors[x],
+              fontsize = 12)
   })
   
   corTrack <- AnnotationTrack(
     cor.gr[cor.gr$transcript_id == transcriptID & cor.gr$mean.gene.corr >= cor_cut,],
     name = 'Cor',
-    fill = 'red'
+    fill = 'red',
+    col = 'transparent'
   )
   
   plotList <- c(axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
