@@ -89,7 +89,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   print("importing coverage")
   covTrackList <- lapply(1:length(coverage.list), function(x) {
     DataTrack(range = coverage.list[[x]], genome = genome, 
-              type = "histogram", name = color.scheme$name[x], 
+              type = "histogram", name = color.scheme$name2[x], 
               chromosome = chr, start = beg, end = END,
               col.histogram = colors[x],
               fill.histogram = colors[x],
@@ -115,6 +115,7 @@ ensembl <- useMart("ensembl",dataset="hsapiens_gene_ensembl")
 
 #coverage.files <- paste0("Gviz/", list.files("Gviz"))
 color.scheme <- read_csv('Color_Scheme.csv')
+#color.scheme$name2 = sapply(color.scheme$name, function(x) paste(strwrap(x,5), collapse="\n"))
 coverage.files <- color.scheme$file
 strsplits <- str_split(coverage.files, "_")
 coverage.names <- sapply(strsplits, function(x) paste(x[c(5,2,3)], collapse = " ")) 
