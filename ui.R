@@ -58,7 +58,7 @@ ui <- fluidPage(
     plotOutput('gviz', height = 1100),
     hr(),
     h5('Expression'),
-    #busyIndicator(text = ''),
+    busyIndicator(text = ''),
     uiOutput("rnaExpression.ui")
   )
   
