@@ -15,7 +15,8 @@ source('Gviz_Plots.R')
 data <- readRDS('lite_bc_annotated_rna_dataframe_long.RDS') %>%
   as_tibble()
 
-peaks.gr <- readRDS('All_Peaks_GenomicRanges.RDS')
+peaks.gr <- readRDS('all_peaks_genomic_ranges.RDS')
+cor.gr <- readRDS('correlation_genomic_ranges.RDS')
 
 # Functions
 

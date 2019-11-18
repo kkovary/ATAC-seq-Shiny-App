@@ -5,8 +5,8 @@ account: kylekovary
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1176131
-bundleId: 2596313
+bundleId: 2596424
 url: https://kylekovary.shinyapps.io/ATAC-seq-Shiny-App/
-when: 1574039211.76038
+when: 1574041933.51808
 asMultiple: FALSE
 asStatic: FALSE

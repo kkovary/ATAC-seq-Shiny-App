@@ -16,6 +16,20 @@ ui <- fluidPage(
       options = list(maxOptions = 5, maxItems = 1),
       multiple = TRUE
     ),
+    selectInput(
+      'transcriptID',
+      label = h4('Transcript ID'),
+      choices = '',
+      multiple = FALSE
+    ),
+    numericInput(
+      'cor_cut',
+      'Correlation Cutoff',
+      value = 0.2,
+      min = -1,
+      max = 1,
+      step = 0.05
+    ),
     sliderInput(
       'xrange',
       label = h4('Track x-axis limits'),

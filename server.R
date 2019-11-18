@@ -4,9 +4,24 @@ shinyServer(function(input, output, session) {
     unique(data[, type])
   })
   
+  transcriptID <- reactive({
+    data %>% filter(gene.symbol == input$gene) %>%
+      dplyr::select(transcript_id) %>% unlist() %>% as.vector() %>% unique()
+  })
+  
   observe({
     updateSelectInput(session, 'gene',
                       choices = geneNames())
+  })
+  
+  observe({
+    if(is.null(input$gene)){
+      updateSelectInput(session, 'transcriptID',
+                        choices = '')
+    } else{
+      updateSelectInput(session, 'transcriptID',
+                        choices = transcriptID())
+    }
   })
   
   rnaPlot <- reactive({
@@ -66,7 +81,9 @@ shinyServer(function(input, output, session) {
       coords = gvizCoords(),
       chr = gvizCoords()[[1]],
       beg = input$xrange[1],
-      END = as.numeric(input$xrange[2])
+      END = as.numeric(input$xrange[2]),
+      transcriptID = input$transcriptID,
+      cor_cut = input$cor_cut
     )
   })
   
