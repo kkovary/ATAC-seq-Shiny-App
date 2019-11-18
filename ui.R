@@ -24,7 +24,7 @@ ui <- fluidPage(
     ),
     numericInput(
       'cor_cut',
-      'Correlation Cutoff',
+      h4('Correlation Cutoff'),
       value = 0,
       min = -1,
       max = 1,
