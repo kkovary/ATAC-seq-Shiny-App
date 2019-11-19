@@ -13,7 +13,7 @@ library(GenomicRanges)
 #library(GenomicFeatures)
 #library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(biomaRt)
-
+library(S4Vectors)
 # colors <- c('#E181F4','#7DCD2C','#F6D7B5','#F9DAFF','#D1E8BA',
 #             '#EFE90D','#9404B4','#DC7511','#4C9006','#CB21ED',
 #             '#F2A760','#F2B9FF','#B0E57C')
@@ -102,14 +102,14 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   })
   
   
-  cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)[,'transcript_id'] == transcriptID) &
-                            (elementMetadata(cor.gr)[,'estimate'] >= corCut) & 
-                            (elementMetadata(cor.gr)[,'cluster.name'] %in% cluster_id)]
+  cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+                            (elementMetadata(cor.gr)$estimate >= corCut) & 
+                            (elementMetadata(cor.gr)$cluster.name %in% cluster_id)]
   
   corTrack <- AnnotationTrack(
     cor.gr.subset,
     name = 'Cor',
-    fill = elementMetadata(cor.gr.subset)[,'cluster.color'],
+    fill = elementMetadata(cor.gr.subset)$cluster.color,
     col = 'transparent'
   )
   
