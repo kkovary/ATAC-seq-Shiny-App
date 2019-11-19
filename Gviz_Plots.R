@@ -60,7 +60,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            beg = NULL, END = NULL,
                            transcriptID = NULL,
                            corCut = NULL,
-                           cluster_id = NULL) {
+                           cluster_id = NULL,
+                           cor.gr = cor.gr) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
