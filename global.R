@@ -20,7 +20,8 @@ cor.gr <- readRDS('correlation_genomic_ranges.RDS')
 
 # Functions
 
-plotrna <- function(gene_id, annotated.counts = rna.df.gg, stat.method = "loess", specify.transcript = NULL, display.se = F, y.limits = c(0,NA), span = 1, log = T) {
+plotrna <- function(gene_id, annotated.counts = rna.df.gg, stat.method = "loess", 
+                    specify.transcript = NULL, display.se = F, y.limits = c(0,NA), span = 1, log = T) {
   annotated.counts <- annotated.counts %>% filter(gene.symbol==gene_id)
   if (!(is.null(specify.transcript))) {
     annotated.counts <- filter(annotated.counts, transcript_id %in% specify.transcript)
