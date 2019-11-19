@@ -104,7 +104,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   cor.gr.subset <- cor.gr[elementMetadata(cor.gr)[, 'transcript_id'] == transcriptID &
                             elementMetadata(cor.gr)[, 'estimate'] >= cor_cut & 
-                            elementMetadata(cor.gr)[, 'cluster.name'] %in% cluster_id,]
+                            elementMetadata(cor.gr)[, 'cluster.name'] %in% cluster_id]
   
   corTrack <- AnnotationTrack(
     cor.gr.subset,
