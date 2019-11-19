@@ -59,7 +59,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            coords = NULL, chr = NULL,
                            beg = NULL, END = NULL,
                            transcriptID = NULL,
-                           cor_cut = NULL,
+                           corCut = NULL,
                            cluster_id = NULL) {
   
   #print("creating track")
@@ -103,7 +103,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   
   cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
-                            (elementMetadata(cor.gr)$estimate >= cor_cut) & 
+                            (elementMetadata(cor.gr)$estimate >= corCut) & 
                             (elementMetadata(cor.gr)$cluster.name %in% cluster_id)]
   
   corTrack <- AnnotationTrack(
