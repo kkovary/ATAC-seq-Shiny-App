@@ -85,6 +85,7 @@ shinyServer(function(input, output, session) {
       END = as.numeric(input$xrange[2]),
       transcriptID = input$transcriptID,
       corCut = input$cor_cut,
+      pval_cut = input$pval_cut,
       cluster_id = input$clusterID
     )
   })
