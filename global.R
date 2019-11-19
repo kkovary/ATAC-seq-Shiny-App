@@ -1,8 +1,11 @@
 library(shiny)
 library(tidyverse)
 library(shinycssloaders)
-library(shinysky)
+#library(shinysky)
 source('Gviz_Plots.R')
+library(Gviz)
+library(GenomicRanges)
+library(biomaRt)
 
 # Set Bioconductor repositories for shinyapps.io:
 # library(BiocManager)
