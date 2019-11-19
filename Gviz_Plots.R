@@ -117,7 +117,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   
   
-  plotList <- c(axisTrack, idxTrack, covTrackList, peakTrack, corTrack, biomTrack)
+  plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
   
   print("plotting")
   plotTracks(plotList, transcriptAnnotation = "name", 
