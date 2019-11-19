@@ -23,7 +23,7 @@ x <- params$gvizPlot
 #   x[[i]]@name = LETTERS[i-1]
 # }
 
-plotTracks(x[1:16], col.title = 'black', 
+plotTracks(x[1:17], col.title = 'black', 
            from = min(start(x[[2]])), to = max(end(x[[2]])))
 
 ```
