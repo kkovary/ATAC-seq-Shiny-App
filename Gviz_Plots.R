@@ -102,11 +102,17 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               fontsize = 12)
   })
   
+  if(is.na(corCut)){
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
+                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)]
+  } else{
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+                              (elementMetadata(cor.gr)$estimate >= corCut) & 
+                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
+                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)]
+  }
   
-  cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
-                            (elementMetadata(cor.gr)$estimate >= corCut) & 
-                            (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                            (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)]
   
   corTrack <- AnnotationTrack(
     cor.gr.subset,
