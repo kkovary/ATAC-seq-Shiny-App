@@ -24,7 +24,7 @@ x <- params$gvizPlot
 # }
 
 plotTracks(x[1:18], col.title = 'black', 
-           from = min(start(x[[2]])), to = max(end(x[[2]])))
+           from = min(start(x[[3]])), to = max(end(x[[3]])))
 
 ```
 
