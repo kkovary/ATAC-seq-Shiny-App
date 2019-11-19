@@ -1,5 +1,3 @@
-
-
 ui <- fluidPage(
   
   sidebarPanel(
