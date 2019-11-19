@@ -106,9 +106,9 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
              cor.gr$estimate >= cor_cut &
              cor.gr$cluster.name %in% cluster_id,],
     name = 'Cor',
-    fill = cor.gr[cor.gr$transcript_id == transcriptID & 
-                    cor.gr$estimate >= cor_cut &
-                    cor.gr$cluster.name %in% cluster_id,]$cluster.color,
+    # fill = cor.gr[cor.gr$transcript_id == transcriptID & 
+    #                 cor.gr$estimate >= cor_cut &
+    #                 cor.gr$cluster.name %in% cluster_id,]$cluster.color,
     col = 'transparent'
   )
   
