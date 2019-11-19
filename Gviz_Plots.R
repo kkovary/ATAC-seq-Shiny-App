@@ -108,7 +108,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   corTrack <- AnnotationTrack(
     cor.gr.subset,
     name = 'Cor',
-    fill = as.data.frame(cor.gr.subset)$cluster.color,
+    #fill = as.data.frame(cor.gr.subset)$cluster.color,
     col = 'transparent'
   )
   
