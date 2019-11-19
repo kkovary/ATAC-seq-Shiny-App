@@ -1,6 +1,6 @@
 ---
 title: "ATAC-seq Report"
-output: html_document
+output: pdf_document
 params:
   gene: NA
   ymax: NA
