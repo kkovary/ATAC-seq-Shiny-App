@@ -59,9 +59,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            coords = NULL, chr = NULL,
                            beg = NULL, END = NULL,
                            transcriptID = NULL,
-                           corCut = NULL,
-                           cluster_id = NULL,
-                           cor.gr = cor.gr) {
+                           corCut = 0,
+                           cluster_id = NULL) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
@@ -103,7 +102,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   })
   
   
-  cor.gr.subset = cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+  cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
                             (elementMetadata(cor.gr)$estimate >= corCut) & 
                             (elementMetadata(cor.gr)$cluster.name %in% cluster_id)]
   
