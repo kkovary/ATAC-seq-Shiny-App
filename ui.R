@@ -47,12 +47,12 @@ ui <- fluidPage(
       max = 1,
       step = 0.05
     ),
-    selectInput(
-      'clusterID',
-      label = h4('Cluster ID'),
-      choices = c('All',as.vector(unique(cor.gr$cluster.name))),
-      multiple = FALSE
-    ),
+    checkboxGroupInput('clusterID', label = h4('Cluster ID'),
+                       choiceNames = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                       choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                       selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                       inline = F),
+
     downloadButton("report", "Download Summary")
   ),
   

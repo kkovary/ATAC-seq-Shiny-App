@@ -45,3 +45,4 @@ plotrna <- function(gene_id, annotated.counts = rna.df.gg, stat.method = "loess"
     facet_wrap( ~ transcript_id, scales = "free_y", ncol = 4)
   return(gg)
 }
+

@@ -101,23 +101,15 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               fontsize = 12)
   })
   
-  if(cluster_id == 'All'){
-    corTrack <- AnnotationTrack(
-      cor.gr[cor.gr$transcript_id == transcriptID & cor.gr$estimate >= cor_cut,],
-      name = 'Cor',
-      fill = 'red',
-      col = 'transparent'
-    )
-  } else{
-    corTrack <- AnnotationTrack(
-      cor.gr[cor.gr$transcript_id == transcriptID & 
-               cor.gr$estimate >= cor_cut &
-               cor.gr$cluster.name %in% cluster_id,],
-      name = 'Cor',
-      fill = 'red',
-      col = 'transparent'
-    )
-  }
+  corTrack <- AnnotationTrack(
+    cor.gr[cor.gr$transcript_id == transcriptID & 
+             cor.gr$estimate >= cor_cut &
+             cor.gr$cluster.name %in% cluster_id,],
+    name = 'Cor',
+    fill = 'red',
+    col = 'transparent'
+  )
+  
   
   
   plotList <- c(axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
