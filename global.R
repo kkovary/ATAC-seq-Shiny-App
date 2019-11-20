@@ -4,6 +4,7 @@ library(shinycssloaders)
 library(shinysky)
 source('Gviz_Plots.R')
 library(DT)
+library(shinyWidgets)
 
 
 # Set Bioconductor repositories for shinyapps.io:
@@ -19,6 +20,7 @@ data <- readRDS('lite_bc_annotated_rna_dataframe_long.RDS') %>%
 
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
 cor.gr <- readRDS('correlation_genomic_ranges.RDS')
+motifs <- readRDS('Motif_SummarizedExperiment.RDS')
 
 # Functions
 

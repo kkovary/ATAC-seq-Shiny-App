@@ -1,2 +1,3 @@
 load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/correlation_data_frame.RDS")
 load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/correlation_genomic_ranges.RDS")
+load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/Motif_SummarizedExperiment.RDS")

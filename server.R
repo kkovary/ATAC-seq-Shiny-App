@@ -11,11 +11,6 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-    updateSelectInput(session, 'gene',
-                      choices = geneNames())
-  })
-  
-  observe({
     if(is.null(input$gene)){
       updateSelectInput(session, 'transcriptID',
                         choices = '')
@@ -25,12 +20,12 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  rnaPlot <- reactive({
+  rnaPlot <- eventReactive(input$plot_button, {
     plotrna(input$gene, data)
   })
   
   output$rnaExpression <- renderPlot({
-    if (length(input$gene > 0)) {
+    if(input$gene != '') {
       rnaPlot()
     } else{
       NULL
@@ -64,12 +59,12 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-    
-    updateSliderInput(session, 'xrange',
-                      min = gvizCoords()[[2]] - 2E5 - SLOP,
-                      max = gvizCoords()[[3]] + 2E5 + SLOP,
-                      value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
-    
+    if(input$gene !=''){
+      updateSliderInput(session, 'xrange',
+                        min = gvizCoords()[[2]] - 2E5 - SLOP,
+                        max = gvizCoords()[[3]] + 2E5 + SLOP,
+                        value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
+    }
   })
   
   
