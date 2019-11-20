@@ -32,7 +32,8 @@ GENOME = "hg38"
 
 getEnsemblCoords <- function(GENE) {
   # Too slow, don't use
-  bm <- getBM(attributes = c("transcript_start", "transcript_end"), filters = c("hgnc_symbol"), values = c(GENE), mart = ensembl)
+  bm <- getBM(attributes = c("transcript_start", "transcript_end"), 
+              filters = c("hgnc_symbol"), values = c(GENE), mart = ensembl)
   g.start <- min(bm$transcript_start)
   g.end <- max(bm$transcript_end)
   return(c(g.start,g.end))
@@ -118,7 +119,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     cor.gr.subset,
     name = 'Cor',
     fill = elementMetadata(cor.gr.subset)$cluster.color,
-    col = 'transparent'
+    col = '#DCDCDC'
+    #col = 'transparent'
   )
   
   
