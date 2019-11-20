@@ -76,15 +76,15 @@ ui <- fluidPage(
                        inline = F),
     
     pickerInput(
-      inputId = "myPicker", 
-      label = "Select/deselect TF Motifs", 
-      choices = motifs@colData@rownames, 
+      inputId = "myPicker",
+      label = "Select/deselect TF Motifs",
+      choices = motifs@colData@rownames,
       options = list(
-        `actions-box` = TRUE, 
+        `actions-box` = TRUE,
         size = 10,
         `selected-text-format` = "count > 3",
         `live-search` = TRUE
-      ), 
+      ),
       multiple = TRUE
     ),
 
