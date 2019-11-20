@@ -22,9 +22,9 @@ library(S4Vectors)
 # Input
 ###############################################################################
 
-GENE = "SYN1"
-SLOP = 50000
-GENOME = "hg38"
+# GENE = "SYN1"
+# SLOP = 50000
+# GENOME = "hg38"
 
 ###############################################################################
 # Functions
@@ -106,12 +106,16 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   if(is.na(corCut)){
     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)]
+                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut) &
+                              start(cor.gr) > beg & 
+                              end(cor.gr) < END]
   } else{
     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
                               (elementMetadata(cor.gr)$estimate >= corCut) & 
                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)]
+                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)&
+                              start(cor.gr) > beg & 
+                              end(cor.gr) < END]
   }
   
   

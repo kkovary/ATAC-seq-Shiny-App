@@ -6,7 +6,7 @@ source('Gviz_Plots.R')
 library(DT)
 library(shinyWidgets)
 
-
+SLOP = 50000
 # Set Bioconductor repositories for shinyapps.io:
 # library(BiocManager)
 # options(repos = BiocManager::repositories())

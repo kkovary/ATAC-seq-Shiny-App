@@ -61,8 +61,8 @@ shinyServer(function(input, output, session) {
   observe({
     if(input$gene !=''){
       updateSliderInput(session, 'xrange',
-                        min = gvizCoords()[[2]] - 2E5 - SLOP,
-                        max = gvizCoords()[[3]] + 2E5 + SLOP,
+                        min = gvizCoords()[[2]] - 3E5 - SLOP,
+                        max = gvizCoords()[[3]] + 3E5 + SLOP,
                         value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
     }
   })
@@ -102,32 +102,57 @@ shinyServer(function(input, output, session) {
     if(is.na(input$cor_cut)){
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
                                 (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut)]
+                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut) &
+                                start(cor.gr) > input$xrange[1] & 
+                                end(cor.gr) < as.numeric(input$xrange[2])]
     } else{
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
                                 (elementMetadata(cor.gr)$estimate >= input$cor_cut) & 
                                 (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut)]
+                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut) &
+                                start(cor.gr) > input$xrange[1] & 
+                                end(cor.gr) < as.numeric(input$xrange[2])]
     }
-    dplyr::as_tibble(cor.gr.subset)
+    dplyr::as_tibble(cor.gr.subset) %>% 
+      dplyr::select(cluster.color, gene.symbol, transcript_id, cluster.name, dplyr::everything())
   })
-  
-  output$peaks_table <- renderDataTable(
-    cor.gr_table(),
-    extensions = 'Buttons',
-    options = list(
-      paging = TRUE,
-      searching = TRUE,
-      fixedColumns = TRUE,
-      autoWidth = TRUE,
-      ordering = TRUE,
-      dom = 'Bfrtip',
-      buttons = c('csv', 'excel'),
-      pageLength = nrow(cor.gr_table())
-    ),
-    class = "display"
+  # 
+  # output$peaks_table <- renderDataTable(
+  #   cor.gr_table(),
+  #   extensions = 'Buttons',
+  #   options = list(
+  #     paging = TRUE,
+  #     searching = TRUE,
+  #     fixedColumns = TRUE,
+  #     autoWidth = TRUE,
+  #     ordering = TRUE,
+  #     dom = 'Bfrtip',
+  #     buttons = c('csv', 'excel'),
+  #     pageLength = nrow(cor.gr_table())
+  #   ),
+  #   class = "display"
+  # )
+  # 
+  output$peaks_table <- DT::renderDataTable({ 
+    dat <- datatable(cor.gr_table(), 
+                     extensions = 'Buttons',
+                     options = list(
+                       paging = TRUE,
+                       searching = TRUE,
+                       fixedColumns = TRUE,
+                       autoWidth = TRUE,
+                       ordering = TRUE,
+                       dom = 'Bfrtip',
+                       buttons = c('csv', 'excel'),
+                       pageLength = nrow(cor.gr_table())
+                     )
+    ) %>% formatStyle('cluster.color',  
+                      color = styleEqual(c('#ABDDA4'), c('#ABDDA4')), 
+                      backgroundColor = styleEqual(c('#ABDDA4'), c('#ABDDA4'))
+                      )
+    return(dat)
+  }, class = "display"
   )
-  
   
   ### Download Report
   output$report <- downloadHandler(
