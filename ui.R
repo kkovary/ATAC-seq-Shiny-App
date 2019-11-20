@@ -1,7 +1,7 @@
-ui <- fluidPage(
+ui <- fluidPage(title = 'ATAC-Seq Explorer',
   
   sidebarPanel(
-    titlePanel(strong('ATAC-Seq Explorer')),
+    titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
     width = 2,
     chooseSliderSkin("Modern", color = '#428bca'),
     #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
