@@ -3,8 +3,7 @@ ui <- fluidPage(
   sidebarPanel(
     titlePanel(strong('ATAC-Seq Explorer')),
     width = 2,
-    #setSliderColor(c('#428bca','#428bca'),c(1,3)),
-    chooseSliderSkin("Modern"),
+    chooseSliderSkin("Modern", color = '#428bca'),
     #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
     # selectInput(
     #   'accessionType',
@@ -43,7 +42,8 @@ ui <- fluidPage(
       value = 100
     ),
     shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
-                        style="color: #fff; background-color: #28a745; border-color: #28a745"),
+                        #style="color: #fff; background-color: #28a745; border-color: #28a745"),
+                        style="color: #fff; background-color: #428bca; border-color: #428bca"),
     shiny::tags$p(h6(em('please wait for genome coordinates to update'))),
     hr(style="border-color: grey"),
     h4('Peak-gene links'),
