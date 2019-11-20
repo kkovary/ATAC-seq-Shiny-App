@@ -3,6 +3,7 @@ library(tidyverse)
 library(shinycssloaders)
 library(shinysky)
 source('Gviz_Plots.R')
+library(DT)
 
 
 # Set Bioconductor repositories for shinyapps.io:

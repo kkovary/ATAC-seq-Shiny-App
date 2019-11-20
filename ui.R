@@ -29,6 +29,9 @@ ui <- fluidPage(
       max = 1000,
       value = 100
     ),
+    shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
+                        style="color: #fff; background-color: #428bca; border-color: #428bca"),
+    shiny::tags$p(h6(em('please wait for genome coordinates to update'))),
     hr(style="border-color: grey"),
     h4('Peak-gene links'),
     selectInput(
@@ -69,13 +72,21 @@ ui <- fluidPage(
   #   type = getOption('spinner.type', default = 4)
   # ),
   mainPanel(
-    #h5('ATAC-seq Tracks'),
     width = 10,
-    plotOutput('gviz', height = 1100),
-    hr(),
-    h5('Expression'),
-    busyIndicator(text = ''),
-    uiOutput("rnaExpression.ui")
+    tabsetPanel(
+      tabPanel('Plots',
+               plotOutput('gviz', height = 1100),
+               hr(),
+               busyIndicator(text = ''),
+               uiOutput("rnaExpression.ui")
+               ),
+      tabPanel('Table',
+               dataTableOutput('peaks_table')
+               )
+    ),
+    #h5('ATAC-seq Tracks'),
+    
+    
   )
   
   

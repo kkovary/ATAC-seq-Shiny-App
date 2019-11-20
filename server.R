@@ -66,14 +66,14 @@ shinyServer(function(input, output, session) {
   observe({
     
     updateSliderInput(session, 'xrange',
-                      min = gvizCoords()[[2]] - 1E5 - SLOP,
-                      max = gvizCoords()[[3]] + 1E5 + SLOP,
+                      min = gvizCoords()[[2]] - 2E5 - SLOP,
+                      max = gvizCoords()[[3]] + 2E5 + SLOP,
                       value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
     
   })
   
   
-  gvizPlot <- reactive({
+  gvizPlot <- eventReactive(input$plot_button, {
     
     plotGenomeView(
       gene.symbol = input$gene,
@@ -90,14 +90,48 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  # output$gviz <- renderPlot({
+  #   if(!is.null(input$gene)) {
+  #     gvizPlot()
+  #   } else{
+  #     NULL
+  #   }
+  #   
+  # })
   output$gviz <- renderPlot({
-    if(sum(input$xrange) > 0) {
-      gvizPlot()
-    } else{
-      NULL
-    }
-    
+    gvizPlot()
   })
+  
+  # Peaks table
+  cor.gr_table <- eventReactive(input$plot_button, {
+    if(is.na(input$cor_cut)){
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
+                                (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
+                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut)]
+    } else{
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
+                                (elementMetadata(cor.gr)$estimate >= input$cor_cut) & 
+                                (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
+                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut)]
+    }
+    dplyr::as_tibble(cor.gr.subset)
+  })
+  
+  output$peaks_table <- renderDataTable(
+    cor.gr_table(),
+    extensions = 'Buttons',
+    options = list(
+      paging = TRUE,
+      searching = TRUE,
+      fixedColumns = TRUE,
+      autoWidth = TRUE,
+      ordering = TRUE,
+      dom = 'Bfrtip',
+      buttons = c('csv', 'excel'),
+      pageLength = nrow(cor.gr_table())
+    ),
+    class = "display"
+  )
   
   
   ### Download Report
