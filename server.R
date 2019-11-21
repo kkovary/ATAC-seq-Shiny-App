@@ -116,7 +116,8 @@ shinyServer(function(input, output, session) {
                                 end(cor.gr) < as.numeric(input$xrange[2])]
     }
     dplyr::as_tibble(cor.gr.subset) %>% 
-      dplyr::select(cluster.color, gene.symbol, transcript_id, cluster.name, dplyr::everything())
+      dplyr::select(cluster.color, gene.symbol, transcript_id, 
+                    cluster.name, estimate, vs.null.p.value, dplyr::everything())
   })
   # 
   # output$peaks_table <- renderDataTable(
