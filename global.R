@@ -5,7 +5,6 @@ library(shinysky)
 source('Gviz_Plots.R')
 library(DT)
 library(shinyWidgets)
-library(shinyjs)
 
 SLOP = 50000
 # Set Bioconductor repositories for shinyapps.io:
