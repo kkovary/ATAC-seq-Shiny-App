@@ -41,10 +41,10 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
       max = 1000,
       value = 100
     ),
-    shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
-                        #style="color: #fff; background-color: #28a745; border-color: #28a745"),
-                        style="color: #fff; background-color: #428bca; border-color: #428bca"),
-    shiny::tags$p(h6(em('please wait for genome coordinates to update'))),
+    conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
+                     shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
+                                         style="color: #fff; background-color: #428bca; border-color: #428bca")
+                     ),
     hr(style="border-color: grey"),
     h4('Peak-gene links'),
     selectInput(

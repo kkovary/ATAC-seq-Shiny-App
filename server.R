@@ -58,8 +58,10 @@ shinyServer(function(input, output, session) {
     }
   })
   
+
   observe({
     if(input$gene !=''){
+      
       updateSliderInput(session, 'xrange',
                         min = gvizCoords()[[2]] - 3E5 - SLOP,
                         max = gvizCoords()[[3]] + 3E5 + SLOP,
