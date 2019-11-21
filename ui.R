@@ -4,6 +4,7 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
     titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
     width = 2,
     chooseSliderSkin("Modern", color = '#428bca'),
+    shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}'), 
     #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
     # selectInput(
     #   'accessionType',
@@ -39,7 +40,7 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
       label = h5('Normalized ATAC-seq Coverage'),
       min = 0,
       max = 1000,
-      value = 100
+      value = 200
     ),
     conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
                      shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
@@ -76,7 +77,7 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
                        inline = F),
     
     pickerInput(
-      inputId = "myPicker",
+      inputId = "tf_motifs",
       label = "Select/deselect TF Motifs",
       choices = motifs@colData@rownames,
       options = list(
@@ -87,7 +88,9 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
       ),
       multiple = TRUE
     ),
-
+    textOutput("selected_tf_motifs"),
+    h4(''),
+    hr(style="border-color: grey"),
     downloadButton("report", h6("Download Summary"))
   ),
   

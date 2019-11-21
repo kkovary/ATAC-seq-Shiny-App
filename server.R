@@ -117,7 +117,9 @@ shinyServer(function(input, output, session) {
     }
     dplyr::as_tibble(cor.gr.subset) %>% 
       dplyr::select(cluster.color, gene.symbol, transcript_id, 
-                    cluster.name, estimate, vs.null.p.value, dplyr::everything())
+                    cluster.name, estimate, vs.null.p.value, dplyr::everything(),
+                    -width, -strand, -mean.gene.corr, -sd.gene.corr, 
+                    -ncorrs, -KM3.ord)
   })
   # 
   # output$peaks_table <- renderDataTable(
@@ -136,6 +138,7 @@ shinyServer(function(input, output, session) {
   #   class = "display"
   # )
   # 
+  
   output$peaks_table <- DT::renderDataTable({ 
     dat <- datatable(cor.gr_table(), 
                      extensions = 'Buttons',
@@ -156,6 +159,15 @@ shinyServer(function(input, output, session) {
     return(dat)
   }, class = "display"
   )
+  
+  # TF Motifs
+  output$selected_tf_motifs <- renderText({
+    if(!is.null(input$tf_motifs)){
+      paste0('Selected TFs: ', paste0(input$tf_motifs, collapse = ', '))
+    } else{
+        NULL
+      }
+  })
   
   ### Download Report
   output$report <- downloadHandler(
