@@ -1,10 +1,11 @@
 ui <- fluidPage(title = 'ATAC-Seq Explorer',
-  
   sidebarPanel(
     titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
     width = 2,
     chooseSliderSkin("Modern", color = '#428bca'),
-    shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}'), 
+    shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}',
+                      ".shiny-output-error { visibility: hidden; }",
+                      ".shiny-output-error:before { visibility: hidden; }"), 
     #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
     # selectInput(
     #   'accessionType',
@@ -107,7 +108,7 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
       tabPanel('Plots',
                plotOutput('gviz', height = 1100),
                hr(),
-               plotOutput('label_test', height = 100),
+               plotOutput('tf_legend', height = 100),
                hr(),
                busyIndicator(text = ''),
                uiOutput("rnaExpression.ui")

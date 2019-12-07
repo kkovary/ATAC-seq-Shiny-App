@@ -31,11 +31,9 @@ shinyServer(function(input, output, session) {
   })
   
   output$rnaExpression <- renderPlot({
-    if(input$gene != '') {
+    
       rnaPlot()
-    } else{
-      NULL
-    }
+    
     
   })
   
@@ -44,15 +42,20 @@ shinyServer(function(input, output, session) {
     if (length(input$gene > 0)) {
       dim = plotrna(input$gene, data)$data$transcript_id
       ceiling(length(unique(dim)) / 4)
-    } else{
-      1
     }
   })
   
-  plotHeight <- reactive(350 * plotCount())
+  plotHeight <- reactive({
+    
+      350 * plotCount()
+    
+    })
   
   output$rnaExpression.ui <- renderUI({
-    plotOutput('rnaExpression', height = plotHeight())
+    
+      plotOutput('rnaExpression', height = plotHeight())
+    
+    
   })
   
   
@@ -205,15 +208,20 @@ shinyServer(function(input, output, session) {
       }
   })
   
-  output$label_test <- renderPlot({
-    pal_jco()(10)
+  output$tf_legend <- renderPlot({
+    if(!is.null(input$tf_motifs)){
+      
+      p <- input$tf_motifs %>% 
+        as_tibble() %>% ggplot(., aes(x = 1:length(input$tf_motifs), fill = value)) + 
+        geom_bar() + scale_fill_jco() + theme(legend.position="bottom")
+      
+      leg <- get_legend(p)
+      as_ggplot(leg)
+      
+    } else{
+      NULL
+    }
     
-    p <- motifs@colData@rownames[1:10] %>% 
-      as_tibble() %>% ggplot(., aes(x = 1:10, fill = value)) + 
-      geom_bar() + scale_fill_jco() + theme(legend.position="bottom")
-    
-    leg <- get_legend(p)
-    as_ggplot(leg)
   })
   
   ### Download Report
