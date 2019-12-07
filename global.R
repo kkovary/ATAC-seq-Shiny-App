@@ -5,7 +5,6 @@ library(shinysky)
 source('Gviz_Plots.R')
 library(DT)
 library(shinyWidgets)
-library(RColorBrewer)
 library(ggsci)
 library(ggpubr)
 

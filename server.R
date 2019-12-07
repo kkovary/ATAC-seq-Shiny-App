@@ -80,8 +80,8 @@ shinyServer(function(input, output, session) {
   
   tfMotifFilter <- reactive({
       filtered = motifs[seqnames(motifs) == gvizCoords()[[1]] & 
-                          start(motifs) >= gvizCoords()[[2]] & 
-                          end(motifs) <= gvizCoords()[[3]]]
+                          start(motifs) >= input$xrange[1] & 
+                          end(motifs) <= input$xrange[2]]
       
       tfPresent <- lapply(motifs@colData@rownames, function(x) {
         filtered[assay(filtered)[,x]] %>% length() > 0
@@ -121,14 +121,7 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  # output$gviz <- renderPlot({
-  #   if(!is.null(input$gene)) {
-  #     gvizPlot()
-  #   } else{
-  #     NULL
-  #   }
-  #   
-  # })
+
   output$gviz <- renderPlot({
     gvizPlot()
   })
@@ -155,23 +148,7 @@ shinyServer(function(input, output, session) {
                     -width, -strand, -mean.gene.corr, -sd.gene.corr, 
                     -ncorrs, -KM3.ord)
   })
-  # 
-  # output$peaks_table <- renderDataTable(
-  #   cor.gr_table(),
-  #   extensions = 'Buttons',
-  #   options = list(
-  #     paging = TRUE,
-  #     searching = TRUE,
-  #     fixedColumns = TRUE,
-  #     autoWidth = TRUE,
-  #     ordering = TRUE,
-  #     dom = 'Bfrtip',
-  #     buttons = c('csv', 'excel'),
-  #     pageLength = nrow(cor.gr_table())
-  #   ),
-  #   class = "display"
-  # )
-  # 
+
   
   output$peaks_table <- DT::renderDataTable({ 
     dat <- datatable(cor.gr_table(), 
