@@ -55,14 +55,17 @@ getGvizCoords <- function(gene.symbol) {
   return(list(g.chr, g.beg, g.end, biomTrack))
 }
 
-attachMotifs <- function(motif.list, se) {
+
+attachMotifs <- function(motif.list, se, chr = NULL, beg = NULL, END = NULL) {
+  se <- se[seqnames(motifs) == chr & 
+             start(motifs) >= beg & 
+             end(motifs) <= END]
   
   output <- lapply(motif.list, function(x) {
     # temp <- granges(se)[assay(se)[, x]]
     # temp[start(temp) > beg & end(temp) < END]
     granges(se)[assay(se)[, x]]
   })
-  
 }
 
 plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, 
@@ -141,11 +144,11 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   )
   
   if(!is.null(motifs_list)){
-    motifs_tracks <- attachMotifs(motifs_list, motifs)
+    motifs_tracks <- attachMotifs(motifs_list, motifs, chr, beg, END)
     
     motifsTrackList <- lapply(1:length(motifs_tracks), function(x) {
       AnnotationTrack(range = motifs_tracks[[x]],
-                      fill = brewer.pal(9, 'Set1')[x],
+                      fill = pal_jco()(10)[x],
                       col = '#DCDCDC',
                       name = motifs_list[x])
     })

@@ -80,8 +80,8 @@ shinyServer(function(input, output, session) {
   
   tfMotifFilter <- reactive({
       filtered = motifs[seqnames(motifs) == gvizCoords()[[1]] & 
-                          start(motifs) > input$xrange[1] & 
-                          end(motifs) < input$xrange[2]]
+                          start(motifs) >= gvizCoords()[[2]] & 
+                          end(motifs) <= gvizCoords()[[3]]]
       
       tfPresent <- lapply(motifs@colData@rownames, function(x) {
         filtered[assay(filtered)[,x]] %>% length() > 0
@@ -90,23 +90,18 @@ shinyServer(function(input, output, session) {
       motifs@colData@rownames[tfPresent]
   })
 
-  observe({
-    if(input$gene !=''){
-      updatePickerInput(
-        session,
-        inputId = 'tf_motifs',
-        selected = NULL,
-        choices = tfMotifFilter()
-      )
-    }
-    
-  })
   # observe({
   #   if(input$gene !=''){
-  #     
+  #     updatePickerInput(
+  #       session,
+  #       inputId = 'tf_motifs',
+  #       selected = NULL,
+  #       choices = tfMotifFilter()
+  #     )
   #   }
+  #   
   # })
-  
+
   
   gvizPlot <- eventReactive(input$plot_button, {
     
@@ -211,8 +206,11 @@ shinyServer(function(input, output, session) {
   output$tf_legend <- renderPlot({
     if(!is.null(input$tf_motifs)){
       
-      p <- input$tf_motifs %>% 
-        as_tibble() %>% ggplot(., aes(x = 1:length(input$tf_motifs), fill = value)) + 
+      motifs_legend_df <- tibble(`TF Motifs` = as.factor(input$tf_motifs),
+                                 x = 1:length(input$tf_motifs)) %>%
+        mutate(`TF Motifs` = fct_reorder(`TF Motifs`, 1:length(`TF Motifs`)))
+      
+      p <- ggplot(motifs_legend_df, aes(x = x, fill = `TF Motifs`)) + 
         geom_bar() + scale_fill_jco() + theme(legend.position="bottom")
       
       leg <- get_legend(p)
