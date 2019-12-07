@@ -5,6 +5,14 @@ library(shinysky)
 source('Gviz_Plots.R')
 library(DT)
 library(shinyWidgets)
+library(RColorBrewer)
+library(ggsci)
+library(ggpubr)
+
+my_names <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
+my_selected <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
+my_colors <- c('#9E0142','#D53E4F','#F46D43','#FFFFBF','#E6F598','#6BAED6',
+               '#3288BD','#5E4FA2','#ABDDA4','#66C2A5','#969696')
 
 SLOP = 50000
 # Set Bioconductor repositories for shinyapps.io:
@@ -51,3 +59,21 @@ plotrna <- function(gene_id, annotated.counts = rna.df.gg, stat.method = "loess"
   return(gg)
 }
 
+my_checkboxGroupInput <- function(variable, label, choices, selected, colors){
+  choices_names <- choices
+  if(length(names(choices))>0) my_names <- names(choices)
+  div(id=variable,class="form-group shiny-input-checkboxgroup shiny-input-container shiny-bound-input",
+      HTML(paste0('<label class="control-label" for="',variable,'">',label,'</label>')),
+      div( class="shiny-options-group",
+           HTML(paste0('<div class="checkbox" style="background-color:', colors,'">',
+                       '<label>',
+                       '<input type="checkbox" name="', variable, 
+                       '" value="', choices, 
+                       '"', ifelse(choices %in% selected, 'checked="checked"', ''), 
+                       '/>',
+                       '<span>', choices_names,'</span>',
+                       '</label>',
+                       '</div>', collapse = " "))
+      )
+  )
+}

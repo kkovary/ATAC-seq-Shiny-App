@@ -1,4 +1,10 @@
 shinyServer(function(input, output, session) {
+  
+  output$cluster_select <- renderUI(my_checkboxGroupInput('clusterID', h5('Cluster ID'),
+                                                   choices = my_names,
+                                                   selected=my_selected, 
+                                                   colors=my_colors))
+  
   geneNames <- reactive({
     #type <- input$accessionType
     type <- 'gene.symbol'
@@ -69,6 +75,35 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  tfMotifFilter <- reactive({
+      filtered = motifs[seqnames(motifs) == gvizCoords()[[1]] & 
+                          start(motifs) > input$xrange[1] & 
+                          end(motifs) < input$xrange[2]]
+      
+      tfPresent <- lapply(motifs@colData@rownames, function(x) {
+        filtered[assay(filtered)[,x]] %>% length() > 0
+      }) %>% unlist()
+      
+      motifs@colData@rownames[tfPresent]
+  })
+
+  observe({
+    if(input$gene !=''){
+      updatePickerInput(
+        session,
+        inputId = 'tf_motifs',
+        selected = NULL,
+        choices = tfMotifFilter()
+      )
+    }
+    
+  })
+  # observe({
+  #   if(input$gene !=''){
+  #     
+  #   }
+  # })
+  
   
   gvizPlot <- eventReactive(input$plot_button, {
     
@@ -83,7 +118,8 @@ shinyServer(function(input, output, session) {
       transcriptID = input$transcriptID,
       corCut = input$cor_cut,
       pval_cut = input$pval_cut,
-      cluster_id = input$clusterID
+      cluster_id = input$clusterID,
+      motifs_list = input$tf_motifs
     )
   })
   
@@ -167,6 +203,17 @@ shinyServer(function(input, output, session) {
     } else{
         NULL
       }
+  })
+  
+  output$label_test <- renderPlot({
+    pal_jco()(10)
+    
+    p <- motifs@colData@rownames[1:10] %>% 
+      as_tibble() %>% ggplot(., aes(x = 1:10, fill = value)) + 
+      geom_bar() + scale_fill_jco() + theme(legend.position="bottom")
+    
+    leg <- get_legend(p)
+    as_ggplot(leg)
   })
   
   ### Download Report

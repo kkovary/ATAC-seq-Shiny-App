@@ -70,11 +70,12 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
       max = 1,
       step = 0.01
     ),
-    checkboxGroupInput('clusterID', label = h5('Cluster ID'),
-                       choiceNames = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-                       choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-                       selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-                       inline = F),
+    uiOutput("cluster_select"),
+    # checkboxGroupInput('clusterID', label = h5('Cluster ID'),
+    #                    choiceNames = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+    #                    choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+    #                    selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+    #                    inline = F),
     
     pickerInput(
       inputId = "tf_motifs",
@@ -84,7 +85,9 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
         `actions-box` = TRUE,
         size = 10,
         `selected-text-format` = "count > 3",
-        `live-search` = TRUE
+        `live-search` = TRUE,
+        `max-options` = 10,
+        `max-options-text` = "Max of 10 selected"
       ),
       multiple = TRUE
     ),
@@ -93,8 +96,6 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
     hr(style="border-color: grey"),
     downloadButton("report", h6("Download Summary"))
   ),
-  
-
   # withSpinner(
   #   uiOutput("rnaExpression.ui"),
   #   #plotOutput('rnaExpression', height = 400*plotLen),
@@ -105,6 +106,8 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
     tabsetPanel(
       tabPanel('Plots',
                plotOutput('gviz', height = 1100),
+               hr(),
+               plotOutput('label_test', height = 100),
                hr(),
                busyIndicator(text = ''),
                uiOutput("rnaExpression.ui")

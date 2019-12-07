@@ -14,6 +14,7 @@ library(GenomicRanges)
 #library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(biomaRt)
 library(S4Vectors)
+library(SummarizedExperiment)
 # colors <- c('#E181F4','#7DCD2C','#F6D7B5','#F9DAFF','#D1E8BA',
 #             '#EFE90D','#9404B4','#DC7511','#4C9006','#CB21ED',
 #             '#F2A760','#F2B9FF','#B0E57C')
@@ -54,6 +55,16 @@ getGvizCoords <- function(gene.symbol) {
   return(list(g.chr, g.beg, g.end, biomTrack))
 }
 
+attachMotifs <- function(motif.list, se) {
+  
+  output <- lapply(motif.list, function(x) {
+    # temp <- granges(se)[assay(se)[, x]]
+    # temp[start(temp) > beg & end(temp) < END]
+    granges(se)[assay(se)[, x]]
+  })
+  
+}
+
 plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, 
                            genome = "hg38", anno.gr = peaks.gr, 
                            coverage.list, ylims = c(0,100),
@@ -62,7 +73,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            transcriptID = NULL,
                            corCut = 0,
                            pval_cut = 1,
-                           cluster_id = NULL) {
+                           cluster_id = NULL,
+                           motifs_list = NULL) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
@@ -111,7 +123,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                               end(cor.gr) < END]
   } else{
     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
-                              (elementMetadata(cor.gr)$estimate >= corCut) & 
+                              (elementMetadata(cor.gr)$estimate >= corCut) |
+                              (elementMetadata(cor.gr)$estimate <= -corCut) & 
                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
                               (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)&
                               start(cor.gr) > beg & 
@@ -127,9 +140,26 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     #col = 'transparent'
   )
   
+  if(!is.null(motifs_list)){
+    motifs_tracks <- attachMotifs(motifs_list, motifs)
+    
+    motifsTrackList <- lapply(1:length(motifs_tracks), function(x) {
+      AnnotationTrack(range = motifs_tracks[[x]],
+                      fill = brewer.pal(9, 'Set1')[x],
+                      col = '#DCDCDC',
+                      name = motifs_list[x])
+    })
+    
+      
+
+  }
   
+  if(is.null(motifs_list)){
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
+  } else{
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack, motifsTrackList)
+  }
   
-  plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
   
   print("plotting")
   plotTracks(plotList, transcriptAnnotation = "name", 
