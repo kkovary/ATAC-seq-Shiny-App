@@ -90,17 +90,17 @@ shinyServer(function(input, output, session) {
       motifs@colData@rownames[tfPresent]
   })
 
-  # observe({
-  #   if(input$gene !=''){
-  #     updatePickerInput(
-  #       session,
-  #       inputId = 'tf_motifs',
-  #       selected = NULL,
-  #       choices = tfMotifFilter()
-  #     )
-  #   }
-  #   
-  # })
+  observe({
+    if(input$gene !=''){
+      updatePickerInput(
+        session,
+        inputId = 'tf_motifs',
+        selected = NULL,
+        choices = tfMotifFilter()
+      )
+    }
+
+  })
 
   
   gvizPlot <- eventReactive(input$plot_button, {
