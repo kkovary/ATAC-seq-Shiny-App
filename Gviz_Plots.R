@@ -163,9 +163,15 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack, motifsTrackList)
   }
   
+  highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'), 
+                     filters = "refseq_mrna", values = transcriptID, mart= ensembl)
   
   print("plotting")
-  plotTracks(plotList, transcriptAnnotation = "name", 
+  plotTracks(HighlightTrack(plotList,
+                            start = highlight$transcript_start,
+                            end = highlight$transcript_end,
+                            chr = chr), 
+             transcriptAnnotation = "name", 
              ylim = ylims, col.title = 'black', from = beg, to = END)
   
 }

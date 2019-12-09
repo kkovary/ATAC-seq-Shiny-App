@@ -63,6 +63,7 @@ shinyServer(function(input, output, session) {
   
   gvizCoords <- reactive({
     if(length(input$gene) > 0){
+      # Switch to getBM
       getGvizCoords(input$gene)
     }
   })
