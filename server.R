@@ -5,11 +5,12 @@ shinyServer(function(input, output, session) {
                                                    selected=my_selected, 
                                                    colors=my_colors))
   
-  geneNames <- reactive({
-    #type <- input$accessionType
-    type <- 'gene.symbol'
-    unique(data[, type])
-  })
+  # geneNames <- reactive({
+  #   #type <- input$accessionType
+  #   type <- 'gene.symbol'
+  #   names <- data[, type] %>% unique() %>% unlist() %>% as.vector()
+  #   names[order(names)]
+  # })
   
   transcriptID <- reactive({
     data %>% filter(gene.symbol == input$gene) %>%
@@ -88,7 +89,8 @@ shinyServer(function(input, output, session) {
         filtered[assay(filtered)[,x]] %>% length() > 0
       }) %>% unlist()
       
-      motifs@colData@rownames[tfPresent]
+      names <- motifs@colData@rownames[tfPresent]
+      names[order(names)]
   })
 
   observe({

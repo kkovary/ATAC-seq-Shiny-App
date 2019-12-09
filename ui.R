@@ -15,7 +15,7 @@ ui <- fluidPage(title = 'ATAC-Seq Explorer',
     pickerInput(
       inputId = "gene",
       label = h5('Gene Search'),
-      choices = as.vector(unique(data$gene.symbol)),
+      choices = as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))],
       options = list(
         `live-search` = TRUE,
         title = 'Gene Name'
