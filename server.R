@@ -108,8 +108,16 @@ shinyServer(function(input, output, session) {
   values <- reactiveValues()
   observe({
     values$tf_motifs <- function(x){input$tf_motifs}
-    values$d <- debounce(values$tf_motifs, 1000)
+    values$tf_motifs_d <- debounce(values$tf_motifs, 2000)
     
+    values$ymax <- function(x){input$ymax}
+    values$ymax_d <- debounce(values$ymax, 2000)
+    
+    values$xrange <- function(x){input$xrange}
+    values$xrange_d <- debounce(values$xrange, 2000)
+    
+    values$cluster_id <- function(x){input$clusterID}
+    values$cluster_id_d <- debounce(values$cluster_id, 2000)
   })
   
   gvizPlot <- reactive({
@@ -117,16 +125,16 @@ shinyServer(function(input, output, session) {
     plotGenomeView(
       gene.symbol = input$gene,
       coverage.list = coverage.list,
-      ylims = c(0, input$ymax),
+      ylims = c(0, values$ymax_d()),
       coords = gvizCoords(),
       chr = gvizCoords()[[1]],
-      beg = input$xrange[1],
-      END = as.numeric(input$xrange[2]),
+      beg = values$xrange_d()[1],
+      END = as.numeric(values$xrange_d()[2]),
       transcriptID = input$transcriptID,
       corCut = input$cor_cut,
       pval_cut = input$pval_cut,
-      cluster_id = input$clusterID,
-      motifs_list = input$tf_motifs
+      cluster_id = values$cluster_id_d(),
+      motifs_list = values$tf_motifs_d()
     )
   })
   
@@ -140,7 +148,7 @@ shinyServer(function(input, output, session) {
   
   # # Plot clusters and motifs tracks
   # gvizPlotClust <- reactive({
-  #   
+  # 
   #   plot_clust_motif(
   #     gene.symbol = input$gene,
   #     coverage.list = coverage.list,

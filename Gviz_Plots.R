@@ -97,7 +97,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   biomTrack <- coords[[4]]
   print(as.character(coords[1:3]))
   
-  axisTrack <- GenomeAxisTrack()
+  axisTrack <- GenomeAxisTrack(fontsize = 20)
   idxTrack <- IdeogramTrack(genome = genome, chromosome = chr)
   
   print("filtering")
@@ -176,7 +176,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                             chr = chr), 
              transcriptAnnotation = "name", 
              ylim = ylims, col.title = 'black', from = beg, to = END,
-             title.width = 2)
+             title.width = 3)
   
 }
 
@@ -254,7 +254,8 @@ plot_clust_motif <- function(gene.symbol = GENE, slop = SLOP,
                             end = highlight$transcript_end,
                             chr = chr), 
              transcriptAnnotation = "name", 
-             ylim = ylims, col.title = 'black', from = beg, to = END)
+             ylim = ylims, col.title = 'black', from = beg, to = END,
+             title.width = 3)
   
 }
 

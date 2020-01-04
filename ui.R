@@ -48,10 +48,10 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               max = 1000,
                               value = 200
                             ),
-                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
-                                             shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
-                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17")
-                            ),
+                            # conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
+                            #                  shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
+                            #                                      style="color: #fff; background-color: #64dd17; border-color: #64dd17")
+                            # ),
                             hr(style="border-color: grey"),
                             h4('Peak-gene links'),
                             selectInput(
@@ -119,9 +119,8 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               ),
                               tabPanel('ATAC-seq',
                                        plotOutput('gviz', height = 1100) %>% withSpinner(type = 6),
-                                       #plotOutput('gvizClust'),
-                                       plotOutput('tf_legend', height = 100),
-                                       hr()#,
+                                       #plotOutput('gvizClust') %>% withSpinner(type = 6),
+                                       plotOutput('tf_legend', height = 100)
                                        #busyIndicator(text = '')
                               )
                             )
