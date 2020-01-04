@@ -1,126 +1,137 @@
-ui <- fluidPage(title = 'ATAC-Seq Explorer',
-  sidebarPanel(
-    titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
-    width = 2,
-    chooseSliderSkin("Modern", color = '#428bca'),
-    shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}',
-                      ".shiny-output-error { visibility: hidden; }",
-                      ".shiny-output-error:before { visibility: hidden; }"), 
-    #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
-    # selectInput(
-    #   'accessionType',
-    #   h4('Accession Type'),
-    #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
-    # ),
-    pickerInput(
-      inputId = "gene",
-      label = h5('Gene Search'),
-      choices = as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))],
-      options = list(
-        `live-search` = TRUE,
-        title = 'Gene Name'
-        )
-    ),
-    # selectizeInput(
-    #   'gene',
-    #   label = h5('Gene Search'),
-    #   choices = '',
-    #   options = list(maxOptions = 5, maxItems = 1),
-    #   multiple = TRUE
-    # ),
-    sliderInput(
-      'xrange',
-      label = h5('Genome Coordinates'),
-      min = 0,
-      max = 0,
-      value = c(0,0),
-      round = T
-    ),
-    sliderInput(
-      'ymax',
-      label = h5('Normalized ATAC-seq Coverage'),
-      min = 0,
-      max = 1000,
-      value = 200
-    ),
-    conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
-                     shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
-                                         style="color: #fff; background-color: #428bca; border-color: #428bca")
-                     ),
-    hr(style="border-color: grey"),
-    h4('Peak-gene links'),
-    selectInput(
-      'transcriptID',
-      label = h5('Transcript ID'),
-      choices = '',
-      multiple = FALSE
-    ),
-    numericInput(
-      'cor_cut',
-      h5('Correlation Cutoff'),
-      value = NA,
-      min = -1,
-      max = 1,
-      step = 0.05
-    ),
-    numericInput(
-      'pval_cut',
-      h5('p.value Cutoff'),
-      value = 1,
-      min = 0,
-      max = 1,
-      step = 0.01
-    ),
-    uiOutput("cluster_select"),
-    # checkboxGroupInput('clusterID', label = h5('Cluster ID'),
-    #                    choiceNames = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-    #                    choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-    #                    selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
-    #                    inline = F),
-    
-    pickerInput(
-      inputId = "tf_motifs",
-      label = "Select/deselect TF Motifs",
-      choices = motifs@colData@rownames,
-      options = list(
-        `actions-box` = TRUE,
-        size = 10,
-        `selected-text-format` = "count > 3",
-        `live-search` = TRUE,
-        `max-options` = 10,
-        `max-options-text` = "Max of 10 selected"
-      ),
-      multiple = TRUE
-    ),
-    textOutput("selected_tf_motifs"),
-    h4(''),
-    hr(style="border-color: grey"),
-    downloadButton("report", h6("Download Summary"))
-  ),
-  # withSpinner(
-  #   uiOutput("rnaExpression.ui"),
-  #   #plotOutput('rnaExpression', height = 400*plotLen),
-  #   type = getOption('spinner.type', default = 4)
-  # ),
-  mainPanel(
-    width = 10,
-    tabsetPanel(
-      tabPanel('Plots',
-               plotOutput('gviz', height = 1100),
-               hr(),
-               plotOutput('tf_legend', height = 100),
-               hr(),
-               busyIndicator(text = ''),
-               uiOutput("rnaExpression.ui")
-               ),
-      tabPanel('Table',
-               dataTableOutput('peaks_table')
-               )
-    ),
-    #h5('ATAC-seq Tracks'),
-    
-    
-  )
-  
-  
+ui <- navbarPage(title = 'ATAC-Seq',
+                 tabPanel('Introduction',
+                          h3('HTML or text here')
+                 ),
+                 tabPanel('Explore Data',
+                          sidebarPanel(
+                            titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
+                            width = 2,
+                            chooseSliderSkin("Modern", color = '#428bca'),
+                            shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}',
+                                              ".shiny-output-error { visibility: hidden; }",
+                                              ".shiny-output-error:before { visibility: hidden; }"), 
+                            #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
+                            # selectInput(
+                            #   'accessionType',
+                            #   h4('Accession Type'),
+                            #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
+                            # ),
+                            pickerInput(
+                              inputId = "gene",
+                              label = h5('Gene Search'),
+                              selected = 'NEUROG2',
+                              choices = as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))],
+                              options = list(
+                                `live-search` = TRUE,
+                                title = 'Gene Name'
+                              )
+                            ),
+                            # selectizeInput(
+                            #   'gene',
+                            #   label = h5('Gene Search'),
+                            #   choices = '',
+                            #   options = list(maxOptions = 5, maxItems = 1),
+                            #   multiple = TRUE
+                            # ),
+                            sliderInput(
+                              'xrange',
+                              label = h5('Genome Coordinates'),
+                              min = 0,
+                              max = 0,
+                              value = c(0,0),
+                              round = T
+                            ),
+                            sliderInput(
+                              'ymax',
+                              label = h5('Normalized ATAC-seq Coverage'),
+                              min = 0,
+                              max = 1000,
+                              value = 200
+                            ),
+                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",   
+                                             shiny::actionButton("plot_button", "Plot", icon = icon("refresh"), 
+                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17")
+                            ),
+                            hr(style="border-color: grey"),
+                            h4('Peak-gene links'),
+                            selectInput(
+                              'transcriptID',
+                              label = h5('Transcript ID'),
+                              choices = '',
+                              multiple = FALSE
+                            ),
+                            numericInput(
+                              'cor_cut',
+                              h5('Correlation Cutoff'),
+                              value = NA,
+                              min = -1,
+                              max = 1,
+                              step = 0.05
+                            ),
+                            numericInput(
+                              'pval_cut',
+                              h5('p.value Cutoff'),
+                              value = 1,
+                              min = 0,
+                              max = 1,
+                              step = 0.01
+                            ),
+                            uiOutput("cluster_select"),
+                            # checkboxGroupInput('clusterID', label = h5('Cluster ID'),
+                            #                    choiceNames = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                            #                    choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                            #                    selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
+                            #                    inline = F),
+                            
+                            pickerInput(
+                              inputId = "tf_motifs",
+                              label = "Select/deselect TF Motifs",
+                              choices = motifs@colData@rownames,
+                              options = list(
+                                `actions-box` = TRUE,
+                                size = 10,
+                                `selected-text-format` = "count > 3",
+                                `live-search` = TRUE,
+                                `max-options` = 10,
+                                `max-options-text` = "Max of 10 selected"
+                              ),
+                              multiple = TRUE
+                            ),
+                            textOutput("selected_tf_motifs"),
+                            h4(''),
+                            hr(style="border-color: grey"),
+                            downloadButton("report", h6("Download Summary"))
+                          ),
+                          # withSpinner(
+                          #   uiOutput("rnaExpression.ui"),
+                          #   #plotOutput('rnaExpression', height = 400*plotLen),
+                          #   type = getOption('spinner.type', default = 4)
+                          # ),
+                          mainPanel(
+                            width = 10,
+                            tabsetPanel(
+                              tabPanel('RNA-seq',
+                                       uiOutput("rnaExpression.ui")
+                                       #plotOutput('rnaExpression') %>% withSpinner(type = 6)
+                              ),
+                              tabPanel('Table',
+                                       dataTableOutput('peaks_table') %>% withSpinner(type = 6)
+                              ),
+                              tabPanel('ATAC-seq',
+                                       plotOutput('gviz', height = 1100) %>% withSpinner(type = 6),
+                                       #plotOutput('gvizClust'),
+                                       plotOutput('tf_legend', height = 100),
+                                       hr()#,
+                                       #busyIndicator(text = '')
+                              )
+                            )
+                            #h5('ATAC-seq Tracks'),
+                            
+                            
+                          )
+                 )
+                 
+                 
+                 
 )
+
