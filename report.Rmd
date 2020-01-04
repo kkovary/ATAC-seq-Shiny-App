@@ -16,6 +16,8 @@ library(ggplot2)
 library(ggpubr)
 ```
 
+Include information such as correlation cuttoff, selected transcript, etc.
+
 \newpage
 ## Plots for `r params$gene`.
 
@@ -44,7 +46,7 @@ if(!is.null(params$tf_legend)){
 ```
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=12, fig.width=12}
 x <- params$rnaPlot
 eval(x)
 ```
