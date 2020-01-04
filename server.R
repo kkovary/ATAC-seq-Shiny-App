@@ -223,7 +223,7 @@ shinyServer(function(input, output, session) {
       }
   })
   
-  output$tf_legend <- renderPlot({
+  tf_legend <- reactive({
     if(!is.null(input$tf_motifs)){
       
       motifs_legend_df <- tibble(`TF Motifs` = as.factor(input$tf_motifs),
@@ -239,7 +239,10 @@ shinyServer(function(input, output, session) {
     } else{
       NULL
     }
-    
+  })
+  
+  output$tf_legend <- renderPlot({
+    tf_legend()
   })
   
   ### Download Report
@@ -256,7 +259,9 @@ shinyServer(function(input, output, session) {
       # Set up parameters to pass to Rmd document
       params <- list(gene = input$gene,
                      ymax = input$ymax,
+                     xrange = input$xrange,
                      gvizPlot = gvizPlot(),
+                     tf_legend = tf_legend(),
                      rnaPlot = rnaPlot()
       )
       

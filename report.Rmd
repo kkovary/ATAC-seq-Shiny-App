@@ -4,18 +4,22 @@ output: pdf_document
 params:
   gene: NA
   ymax: NA
+  xrange: NA
   gvizPlot: NA
+  tf_legend: NA
   rnaPlot: NA
 ---
 
 ```{r include=FALSE}
 library(Gviz)
 library(ggplot2)
+library(ggpubr)
 ```
 
+\newpage
 ## Plots for `r params$gene`.
 
-```{r echo=FALSE, fig.height=12, fig.width=12}
+```{r echo=FALSE, fig.height=14, fig.width=12}
 x <- params$gvizPlot
 
 # for(i in 2:14){
@@ -23,10 +27,22 @@ x <- params$gvizPlot
 #   x[[i]]@name = LETTERS[i-1]
 # }
 
-plotTracks(x[1:18], col.title = 'black', 
-           from = min(start(x[[3]])), to = max(end(x[[3]])))
+plotTracks(x[1:(length(x)-1)], col.title = 'black', 
+           from = params$xrange[1], to = params$xrange[2])
+
+
+
 
 ```
+
+```{r echo=FALSE, fig.height=1, fig.width=12}
+
+if(!is.null(params$tf_legend)){
+ params$tf_legend
+}
+
+```
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 x <- params$rnaPlot
