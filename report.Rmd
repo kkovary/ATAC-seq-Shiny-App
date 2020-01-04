@@ -16,10 +16,10 @@ library(ggplot2)
 library(ggpubr)
 ```
 
+## Summary for `r params$gene`.
 Include information such as correlation cuttoff, selected transcript, etc.
 
 \newpage
-## Plots for `r params$gene`.
 
 ```{r echo=FALSE, fig.height=14, fig.width=12}
 x <- params$gvizPlot
