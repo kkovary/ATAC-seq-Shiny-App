@@ -16,6 +16,9 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             #   h4('Accession Type'),
                             #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
                             # ),
+                            downloadButton("report", h6("Download Summary")),
+                            h4(''),
+                            hr(style="border-color: grey"),
                             pickerInput(
                               inputId = "gene",
                               label = h5('Gene Search'),
@@ -97,10 +100,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               ),
                               multiple = TRUE
                             ),
-                            textOutput("selected_tf_motifs"),
-                            h4(''),
-                            hr(style="border-color: grey"),
-                            downloadButton("report", h6("Download Summary"))
+                            textOutput("selected_tf_motifs")
                           ),
                           # withSpinner(
                           #   uiOutput("rnaExpression.ui"),
