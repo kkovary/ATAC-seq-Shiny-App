@@ -8,6 +8,9 @@ params:
   gvizPlot: NA
   tf_legend: NA
   rnaPlot: NA
+  transcript_start: NA
+  transcript_end: NA
+  chr: NA
 ---
 
 ```{r include=FALSE}
@@ -29,7 +32,10 @@ x <- params$gvizPlot
 #   x[[i]]@name = LETTERS[i-1]
 # }
 
-plotTracks(x[1:(length(x)-1)], col.title = 'black', 
+plotTracks(HighlightTrack(x[1:(length(x)-1)],
+                            start = params$transcript_start,
+                            end = params$transcript_end,
+                            chr = params$chr), col.title = 'black', 
            from = params$xrange[1], to = params$xrange[2])
 
 

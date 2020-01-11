@@ -260,7 +260,10 @@ shinyServer(function(input, output, session) {
                      xrange = input$xrange,
                      gvizPlot = gvizPlot(),
                      tf_legend = tf_legend(),
-                     rnaPlot = rnaPlot()
+                     rnaPlot = rnaPlot(),
+                     transcript_start = filter(transcript_locations, refseq_mrna == input$transcriptID)$transcript_start,
+                     transcript_end = filter(transcript_locations, refseq_mrna == input$transcriptID)$transcript_end,
+                     chr = chr()
       )
       
       # Knit the document, passing in the `params` list, and eval it in a
