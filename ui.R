@@ -1,6 +1,6 @@
 ui <- navbarPage(title = 'ATAC-Seq',
                  tabPanel('Introduction',
-                          h3('HTML or text here')
+                          shiny::includeHTML('HTML/ATACBrowserText.html')
                  ),
                  tabPanel('Explore Data',
                           sidebarPanel(
@@ -16,7 +16,13 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             #   h4('Accession Type'),
                             #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
                             # ),
-                            downloadButton("report", h6("Download Summary")),
+                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
+                                             shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
+                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17; white-space:normal; width:45%"),
+                                             downloadButton("report", h6("Download\nSummary"),
+                                                            style = "white-space:normal; width:45%")
+                            ),
+                            
                             h4(''),
                             hr(style="border-color: grey"),
                             pickerInput(
@@ -50,10 +56,6 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               min = 0,
                               max = 1000,
                               value = 200
-                            ),
-                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
-                                             shiny::actionButton("plot_button", "Plot", icon = icon("refresh"),
-                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17")
                             ),
                             hr(style="border-color: grey"),
                             h4('Peak-gene links'),

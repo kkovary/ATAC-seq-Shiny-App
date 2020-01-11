@@ -2,11 +2,12 @@ library(shiny)
 library(tidyverse)
 library(shinycssloaders)
 library(shinysky)
-source('Gviz_Plots.R')
 library(DT)
 library(shinyWidgets)
 library(ggsci)
 library(ggpubr)
+library(feather)
+source('Gviz_Plots.R')
 
 my_names <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
 my_selected <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
@@ -22,12 +23,21 @@ SLOP = 50000
 
 # load in genelist to speed loading up
 # reading csv is faster than rds
-data <- readRDS('lite_bc_annotated_rna_dataframe_long.RDS') %>%
-  as_tibble()
+data <- read_feather('lite_bc_annotated_rna_dataframe_long.feather')
 
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
-cor.gr <- readRDS('correlation_genomic_ranges.RDS')
+
+cor.gr <- read_feather('correlation_genomic_ranges.feather') %>%
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+
 motifs <- readRDS('Motif_SummarizedExperiment.RDS')
+
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+
+ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('ENSEMBL_Gviz_GeneTrackRegionObject.RDS')
+
+transcript_locations <- read_feather('transcript_locations.feather')
 
 # Functions
 

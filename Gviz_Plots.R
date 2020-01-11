@@ -40,6 +40,17 @@ getEnsemblCoords <- function(GENE) {
   return(c(g.start,g.end))
 }
 
+getGtfCoords <- function(GENE, tbl = gtf) {
+  
+  gtf2 <- tbl[tbl@elementMetadata$gene_name==GENE]
+  
+  g.chr <- min(as.character(seqnames(gtf2)))
+  g.start <- min(start(gtf2))
+  g.end <- max(end(gtf2))
+  
+  return(list(g.chr, g.start, g.end))
+}
+
 getGvizCoords <- function(gene.symbol) {
   
   biomTrack <- BiomartGeneRegionTrack(genome="hg38", 
@@ -84,7 +95,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   print("obtaining coordinates")
   if(is.null(coords)){
-    coords <- getGvizCoords(gene.symbol)
+    coords <- getGtfCoords(gene.symbol, ENSEMBL_hg38_local_fromGTF)
   }
   
   if(is.null(beg) & is.null(END)){
@@ -94,7 +105,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   }
   
   
-  biomTrack <- coords[[4]]
+  #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
   print(as.character(coords[1:3]))
   
   axisTrack <- GenomeAxisTrack(fontsize = 20)
@@ -158,16 +169,18 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   }
   
   if(is.null(motifs_list)){
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack)
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject)
   } else{
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, biomTrack, motifsTrackList)
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, motifsTrackList)
   }
 
   
   #plotList <- c(idxTrack, axisTrack, covTrackList)
   
-  highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'), 
-                     filters = "refseq_mrna", values = transcriptID, mart= ensembl)
+  # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
+  #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
+  
+  highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
   
   print("plotting")
   plotTracks(HighlightTrack(plotList,

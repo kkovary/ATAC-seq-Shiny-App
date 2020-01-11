@@ -1,9 +1,9 @@
 shinyServer(function(input, output, session) {
   
   output$cluster_select <- renderUI(my_checkboxGroupInput('clusterID', h5('Cluster ID'),
-                                                   choices = my_names,
-                                                   selected=my_selected, 
-                                                   colors=my_colors))
+                                                          choices = my_names,
+                                                          selected=my_selected, 
+                                                          colors=my_colors))
   
   # geneNames <- reactive({
   #   #type <- input$accessionType
@@ -17,43 +17,22 @@ shinyServer(function(input, output, session) {
       dplyr::select(transcript_id) %>% unlist() %>% as.vector() %>% unique()
   })
   
-  observe({
-    if(is.null(input$gene)){
-      updateSelectInput(session, 'transcriptID',
-                        choices = '')
-    } else{
-      updateSelectInput(session, 'transcriptID',
-                        choices = transcriptID())
-    }
-  })
+  observeEvent(input$plot_button, {
+    updateSelectInput(session, 'transcriptID', choices = transcriptID())
+  }, ignoreNULL = FALSE, priority = 1)
+  
   
   rnaPlot <- reactive({
-    plotrna(input$gene, data)
+    plotrna(gene(), data)
   })
   
   output$rnaExpression <- renderPlot({
-    
-      rnaPlot()
-
-  })
-  
-  
-  plotCount <- reactive({
-    if (length(input$gene > 0)) {
-      dim = plotrna(input$gene, data)$data$transcript_id
-      ceiling(length(unique(dim)) / 4)
-    }
-  })
-  
-  plotHeight <- reactive({
-    
-      350 * plotCount()
-    
-    })
+    rnaPlot()
+  }, height = function(){ceiling(length(unique(rnaPlot()$data$transcript_id))/4) * 350})
   
   output$rnaExpression.ui <- renderUI({
     
-      plotOutput('rnaExpression', height = plotHeight()) %>% withSpinner(type = 6)
+    plotOutput('rnaExpression') %>% withSpinner(type = 6)
     
     
   })
@@ -62,83 +41,102 @@ shinyServer(function(input, output, session) {
   #outputOptions(output, 'dims', suspendWhenHidden = FALSE)
   
   gvizCoords <- reactive({
-    if(length(input$gene) > 0){
-      # Switch to getBM
-      getGvizCoords(input$gene)
-      
-    }
+    getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)
   })
   
-
+  
   observe({
-    if(input$gene !=''){
-      
       updateSliderInput(session, 'xrange',
                         min = gvizCoords()[[2]] - 3E5 - SLOP,
                         max = gvizCoords()[[3]] + 3E5 + SLOP,
                         value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
-    }
-  })
+  }, priority = 9)
   
   tfMotifFilter <- reactive({
-      filtered = motifs[seqnames(motifs) == gvizCoords()[[1]] & 
-                          start(motifs) >= input$xrange[1] & 
-                          end(motifs) <= input$xrange[2]]
-      
-      tfPresent <- lapply(motifs@colData@rownames, function(x) {
-        filtered[assay(filtered)[,x]] %>% length() > 0
-      }) %>% unlist()
-      
-      names <- motifs@colData@rownames[tfPresent]
-      names[order(names)]
+    filtered = motifs[seqnames(motifs) == chr() & 
+                        start(motifs) >= xrange()[1] & 
+                        end(motifs) <= xrange()[2]]
+    
+    tfPresent <- lapply(motifs@colData@rownames, function(x) {
+      filtered[assay(filtered)[,x]] %>% length() > 0
+    }) %>% unlist()
+    
+    names <- motifs@colData@rownames[tfPresent]
+    names[order(names)]
   })
-
+  
   observe({
-    if(input$gene !=''){
       updatePickerInput(
         session,
         inputId = 'tf_motifs',
         selected = NULL,
         choices = tfMotifFilter()
       )
-    }
+  })
+  
 
+# Define and update input variables  
+  gene <- reactiveVal('NEUROG2')
+  ymax <- reactiveVal(200)
+  xrange <- reactiveVal(c(112463516, 112566180))
+  chr <- reactiveVal(unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1]))
+  # transcriptID <- reactiveVal({
+  #   data %>% filter(gene.symbol == gene()) %>%
+  #     dplyr::select(transcript_id) %>% unlist() %>% as.vector() %>% unique()
+  # })
+  
+  observeEvent(input$plot_button, {
+    gene(input$gene)
+    ymax(input$ymax)
+    xrange(input$xrange)
+    chr(unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]]))
+  })
+  
+  values_pb <- reactiveValues(
+    gene = function(x){'NEUROG2'},
+    ymax = function(x){200},
+    xrange = function(x){c(112463516, 112566180)},
+    chr = function(x){unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1])}
+  )
+  
+  observeEvent(input$plot_button, {
+    values_pb$gene <- function(x){input$gene}
+    values_pb$ymax <- function(x){input$ymax}
+    values_pb$xrange <- function(x){input$xrange}
+    values_pb$chr <- function(x){unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[1])}
   })
 
-  values <- reactiveValues()
+  # Throttle response to dynamic inputs by using
+  # the debounce function
+  values_d <- reactiveValues()
+  
   observe({
-    values$tf_motifs <- function(x){input$tf_motifs}
-    values$tf_motifs_d <- debounce(values$tf_motifs, 2000)
-    
-    values$ymax <- function(x){input$ymax}
-    values$ymax_d <- debounce(values$ymax, 2000)
-    
-    values$xrange <- function(x){input$xrange}
-    values$xrange_d <- debounce(values$xrange, 2000)
-    
-    values$cluster_id <- function(x){input$clusterID}
-    values$cluster_id_d <- debounce(values$cluster_id, 2000)
+    values_d$transcriptID <- debounce(function(){input$transcriptID},0)
+    values_d$clusterID <- debounce(function(){input$clusterID},2000)
+    values_d$cor_cut <- debounce(function(){input$cor_cut},2000)
+    values_d$pval_cut <- debounce(function(){input$pval_cut},2000)
+    values_d$tf_motifs <- debounce(function(){input$tf_motifs},2000)
   })
   
   gvizPlot <- reactive({
     
     plotGenomeView(
-      gene.symbol = input$gene,
+      gene.symbol = gene(),
       coverage.list = coverage.list,
-      ylims = c(0, values$ymax_d()),
-      coords = gvizCoords(),
-      chr = gvizCoords()[[1]],
-      beg = values$xrange_d()[1],
-      END = as.numeric(values$xrange_d()[2]),
+      ylims = c(0, ymax()),
+      coords = NULL, #gvizCoords(),
+      chr = chr(),
+      beg = xrange()[1],
+      END = xrange()[2],
       transcriptID = input$transcriptID,
-      corCut = input$cor_cut,
-      pval_cut = input$pval_cut,
-      cluster_id = values$cluster_id_d(),
-      motifs_list = values$tf_motifs_d()
+      corCut = values_d$cor_cut(),
+      pval_cut = values_d$pval_cut(),
+      cluster_id = values_d$clusterID(),
+      motifs_list = values_d$tf_motifs()
     )
   })
   
-
+  
   output$gviz <- renderPlot({
     gvizPlot()
   })
@@ -146,22 +144,22 @@ shinyServer(function(input, output, session) {
   outputOptions(output, 'gviz', suspendWhenHidden = FALSE)
   outputOptions(output, 'rnaExpression.ui', suspendWhenHidden = FALSE)
   
-  # # Plot clusters and motifs tracks
+  # Plot clusters and motifs tracks
   # gvizPlotClust <- reactive({
   # 
   #   plot_clust_motif(
-  #     gene.symbol = input$gene,
+  #     gene.symbol = gene(),
   #     coverage.list = coverage.list,
-  #     ylims = c(0, input$ymax),
-  #     coords = gvizCoords(),
-  #     chr = gvizCoords()[[1]],
-  #     beg = input$xrange[1],
-  #     END = as.numeric(input$xrange[2]),
+  #     ylims = c(0, ymax()),
+  #     coords = NULL, #gvizCoords(),
+  #     chr = chr(),
+  #     beg = xrange()[1],
+  #     END = xrange()[2],
   #     transcriptID = input$transcriptID,
-  #     corCut = input$cor_cut,
-  #     pval_cut = input$pval_cut,
-  #     cluster_id = input$clusterID,
-  #     motifs_list = input$tf_motifs
+  #     corCut = values_d$cor_cut(),
+  #     pval_cut = values_d$pval_cut(),
+  #     cluster_id = values_d$clusterID(),
+  #     motifs_list = values_d$tf_motifs()
   #   )
   # })
   # 
@@ -173,17 +171,17 @@ shinyServer(function(input, output, session) {
   cor.gr_table <- reactive({
     if(is.na(input$cor_cut)){
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
-                                (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut) &
-                                start(cor.gr) > input$xrange[1] & 
-                                end(cor.gr) < as.numeric(input$xrange[2])]
+                                (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
+                                (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
+                                start(cor.gr) > xrange()[1] & 
+                                end(cor.gr) < xrange()[2]]
     } else{
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
-                                (elementMetadata(cor.gr)$estimate >= input$cor_cut) & 
-                                (elementMetadata(cor.gr)$cluster.name %in% input$clusterID) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= input$pval_cut) &
-                                start(cor.gr) > input$xrange[1] & 
-                                end(cor.gr) < as.numeric(input$xrange[2])]
+                                (elementMetadata(cor.gr)$estimate >= values_d$cor_cut()) & 
+                                (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
+                                (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
+                                start(cor.gr) > xrange()[1] & 
+                                end(cor.gr) < xrange()[2]]
     }
     dplyr::as_tibble(cor.gr.subset) %>% 
       dplyr::select(cluster.color, gene.symbol, transcript_id, 
@@ -191,7 +189,7 @@ shinyServer(function(input, output, session) {
                     -width, -strand, -mean.gene.corr, -sd.gene.corr, 
                     -ncorrs, -KM3.ord)
   })
-
+  
   
   output$peaks_table <- DT::renderDataTable({ 
     dat <- datatable(cor.gr_table(), 
@@ -209,7 +207,7 @@ shinyServer(function(input, output, session) {
     ) %>% formatStyle('cluster.color',  
                       color = styleEqual(c('#ABDDA4'), c('#ABDDA4')), 
                       backgroundColor = styleEqual(c('#ABDDA4'), c('#ABDDA4'))
-                      )
+    )
     return(dat)
   }, class = "display"
   )
@@ -219,8 +217,8 @@ shinyServer(function(input, output, session) {
     if(!is.null(input$tf_motifs)){
       paste0('Selected TFs: ', paste0(input$tf_motifs, collapse = ', '))
     } else{
-        NULL
-      }
+      NULL
+    }
   })
   
   tf_legend <- reactive({
