@@ -150,8 +150,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     cor.gr.subset,
     name = 'Cor',
     fill = elementMetadata(cor.gr.subset)$cluster.color,
-    col = '#DCDCDC'
-    #col = 'transparent'
+    #col = '#DCDCDC'
+    col = 'transparent'
   )
   
   if(!is.null(motifs_list)){
@@ -160,7 +160,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     motifsTrackList <- lapply(1:length(motifs_tracks), function(x) {
       AnnotationTrack(range = motifs_tracks[[x]],
                       fill = pal_jco()(10)[x],
-                      col = '#DCDCDC',
+                      #col = '#DCDCDC',
+                      col = 'transparent',
                       name = motifs_list[x])
     })
     
