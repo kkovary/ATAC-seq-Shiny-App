@@ -1,3 +1,144 @@
-load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/correlation_data_frame.RDS")
-load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/correlation_genomic_ranges.RDS")
-load("/Users/kylekovary/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/Motif_SummarizedExperiment.RDS")
+parallel::detectCores()
+c(parallel::detectCores() - 1)
+c(parallel::detectCores() - 1)[1]
+library(tidyverse)#
+library(tidyr)#
+library(sleuth)#
+library(data.table)#
+library(ggbiplot)#
+library(stringr)
+sample_list = read_csv('/Volumes/labdata/stefan_RNAseq/Randomize samples.csv')
+path = list.dirs("/Volumes/labdata/stefan_RNAseq/kallisto_output")[-c(1,2)]#
+path = path %>% as.tibble() %>% separate(col = value, into = c('a','mouse'), sep = '-', remove = F) %>% select(value, mouse)#
+#
+s2c_table = cbind(sample_list, path[match(sample_list$mouse, path$mouse),1])#
+colnames(s2c_table)[9] = 'path'
+s2c_table
+kallisto_data = sleuth_prep(sample_to_covariates = s2c_table, num_cores = 11)
+kallisto_data
+kallisto_data = sleuth_prep(sample_to_covariates = s2c_table, num_cores = 11)
+library(sleuth)
+if (!requireNamespace("BiocManager", quietly = TRUE))#
+    install.packages("BiocManager")#
+BiocManager::install()
+source("http://bioconductor.org/biocLite.R")#
+biocLite("devtools")    # only if devtools not yet installed#
+biocLite("pachterlab/sleuth")
+citation()
+citation('ggplot2')
+library(RColorBrewer)
+library(pheatmap)
+mymat <- matrix(rexp(720, rate=.1), ncol=12)#
+colnames(mymat) <- c(rep("treatment_1", 3), rep("treatment_2", 3), rep("treatment_3", 3), rep("treatment_4", 3))#
+rownames(mymat) <- paste("gene", 1:dim(mymat)[1], sep="_")#
+#
+annotdf <- data.frame(row.names = rownames(mymat), #
+                      category = rep(paste0("Category_", seq(12)), each=5) )  #
+#
+newCols <- colorRampPalette(grDevices::rainbow(length(unique(annotdf$category))))#
+mycolors <- newCols(length(unique(annotdf$category)))#
+names(mycolors) <- unique(annotdf$category)#
+mycolors <- list(category = mycolors)#
+#
+pheatmap(mymat,#
+         scale="row",#
+         cluster_rows = FALSE,#
+         cluster_cols = FALSE,#
+         gaps_row=c(5,10,15,20,25,30,35,40,45,50, 55),#
+         gaps_col=c(3,6,9),#
+         cellheight = 6,#
+         cellwidth = 20,#
+         border_color=NA,#
+         fontsize_row = 6,#
+         main="Genes grouped by categories",#
+         filename = "TEST_12cat.png",#
+         annotation_row = annotdf,#
+         annotation_colors = mycolors#
+)
+pheatmap(mymat)
+mymat <- matrix(rexp(720, rate=.1), ncol=12)#
+colnames(mymat) <- c(rep("treatment_1", 3), rep("treatment_2", 3), rep("treatment_3", 3), rep("treatment_4", 3))#
+rownames(mymat) <- paste("gene", 1:dim(mymat)[1], sep="_")#
+#
+annotdf <- data.frame(row.names = rownames(mymat), #
+                      category = rep(paste0("Category_", seq(12)), each=5) )  #
+#
+newCols <- colorRampPalette(grDevices::rainbow(length(unique(annotdf$category))))#
+mycolors <- newCols(length(unique(annotdf$category)))#
+names(mycolors) <- unique(annotdf$category)#
+mycolors <- list(category = mycolors)#
+#
+pheatmap(mymat,#
+         scale="row",#
+         cluster_rows = FALSE,#
+         cluster_cols = FALSE,#
+         gaps_row=c(5,10,15,20,25,30,35,40,45,50, 55),#
+         gaps_col=c(3,6,9),#
+         cellheight = 6,#
+         cellwidth = 20,#
+         border_color=NA,#
+         fontsize_row = 6,#
+         main="Genes grouped by categories",#
+         filename = "TEST_12cat.png",#
+         annotation_row = annotdf,#
+         annotation_colors = mycolors#
+)
+mymat <- matrix(rexp(720, rate=.1), ncol=12)#
+colnames(mymat) <- c(rep("treatment_1", 3), rep("treatment_2", 3), rep("treatment_3", 3), rep("treatment_4", 3))#
+rownames(mymat) <- paste("gene", 1:dim(mymat)[1], sep="_")#
+#
+annotdf <- data.frame(row.names = rownames(mymat), #
+                      category = rep(paste0("Category_", seq(12)), each=5) )  #
+#
+newCols <- colorRampPalette(grDevices::rainbow(length(unique(annotdf$category))))#
+mycolors <- newCols(length(unique(annotdf$category)))#
+names(mycolors) <- unique(annotdf$category)#
+mycolors <- list(category = mycolors)#
+#
+pheatmap(mymat,#
+         scale="row",#
+         cluster_rows = FALSE,#
+         cluster_cols = FALSE,#
+         gaps_row=c(5,10,15,20,25,30,35,40,45,50, 55),#
+         gaps_col=c(3,6,9),#
+         cellheight = 6,#
+         cellwidth = 20,#
+         border_color=NA,#
+         fontsize_row = 6,#
+         main="Genes grouped by categories",#
+                  annotation_row = annotdf,#
+         annotation_colors = mycolors#
+)
+rep('GAA',600)
+paste0(rep('GAA',600))
+if (!requireNamespace("BiocManager", quietly = TRUE))#
+    install.packages("BiocManager")#
+BiocManager::install()
+update.packages('BiocManager')
+BiocManager::install()
+update.packages('BiocManager')
+if (!requireNamespace("BiocManager", quietly = TRUE))#
+    install.packages("BiocManager")#
+BiocManager::install()
+BiocManager::install(version = "3.10")
+BiocManager::install()
+getGtfCoords <- function(GENE, tbl = gtf) {#
+  gtf2 <- tbl[tbl@elementMetadata$gene_name==GENE]#
+  g.chr <- min(as.character(seqnames(gtf2)))#
+  g.start <- min(start(gtf2))#
+  g.end <- max(end(gtf2))#
+  return(list(g.chr, g.start, g.end))#
+}
+library(feather)
+setwd('~/Documents/GitHub/ShinyApps/ATAC-seq-Shiny-App/')
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%#
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+library(tidyverse)
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%#
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%#
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+library(GenomicRanges)
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%#
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+getGtfCoords("PPARG",ENSEMBL_hg38_local_fromGTF)

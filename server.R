@@ -12,13 +12,13 @@ shinyServer(function(input, output, session) {
   #   names[order(names)]
   # })
   
-  transcriptID <- reactive({
+  transcriptID <- eventReactive(input$plot_button, {
     data %>% filter(gene.symbol == input$gene) %>%
       dplyr::select(transcript_id) %>% unlist() %>% as.vector() %>% unique()
-  })
+  }, ignoreNULL = FALSE)
   
   observeEvent(input$plot_button, {
-    updateSelectInput(session, 'transcriptID', choices = transcriptID())
+    updateSelectInput(session, 'transcriptID', choices = c('Any',transcriptID()))
   }, ignoreNULL = FALSE, priority = 1)
   
   
@@ -80,10 +80,6 @@ shinyServer(function(input, output, session) {
   ymax <- reactiveVal(200)
   xrange <- reactiveVal(c(112463516, 112566180))
   chr <- reactiveVal(unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1]))
-  # transcriptID <- reactiveVal({
-  #   data %>% filter(gene.symbol == gene()) %>%
-  #     dplyr::select(transcript_id) %>% unlist() %>% as.vector() %>% unique()
-  # })
   
   observeEvent(input$plot_button, {
     gene(input$gene)
@@ -92,26 +88,19 @@ shinyServer(function(input, output, session) {
     chr(unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]]))
   })
   
-  values_pb <- reactiveValues(
-    gene = function(x){'NEUROG2'},
-    ymax = function(x){200},
-    xrange = function(x){c(112463516, 112566180)},
-    chr = function(x){unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1])}
-  )
-  
-  observeEvent(input$plot_button, {
-    values_pb$gene <- function(x){input$gene}
-    values_pb$ymax <- function(x){input$ymax}
-    values_pb$xrange <- function(x){input$xrange}
-    values_pb$chr <- function(x){unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[1])}
-  })
 
   # Throttle response to dynamic inputs by using
   # the debounce function
   values_d <- reactiveValues()
-  
+
   observe({
-    values_d$transcriptID <- debounce(function(){input$transcriptID},0)
+    values_d$transcriptID <- debounce(function(){
+      if(input$transcriptID == 'Any'){
+        return(transcriptID())
+      } else{
+        return(input$transcriptID)
+      }
+      },0)
     values_d$clusterID <- debounce(function(){input$clusterID},2000)
     values_d$cor_cut <- debounce(function(){input$cor_cut},2000)
     values_d$pval_cut <- debounce(function(){input$pval_cut},2000)
@@ -128,7 +117,7 @@ shinyServer(function(input, output, session) {
       chr = chr(),
       beg = xrange()[1],
       END = xrange()[2],
-      transcriptID = input$transcriptID,
+      transcriptID = values_d$transcriptID(),
       corCut = values_d$cor_cut(),
       pval_cut = values_d$pval_cut(),
       cluster_id = values_d$clusterID(),
@@ -170,13 +159,13 @@ shinyServer(function(input, output, session) {
   # Peaks table
   cor.gr_table <- reactive({
     if(is.na(input$cor_cut)){
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% values_d$transcriptID()) &
                                 (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
                                 (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
                                 start(cor.gr) > xrange()[1] & 
                                 end(cor.gr) < xrange()[2]]
     } else{
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == input$transcriptID) &
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% values_d$transcriptID()) &
                                 (elementMetadata(cor.gr)$estimate >= values_d$cor_cut()) & 
                                 (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
                                 (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
@@ -255,14 +244,13 @@ shinyServer(function(input, output, session) {
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(gene = input$gene,
-                     ymax = input$ymax,
-                     xrange = input$xrange,
+      params <- list(gene = gene(),
+                     ymax = ymax(),
+                     xrange = xrange(),
                      gvizPlot = gvizPlot(),
                      tf_legend = tf_legend(),
                      rnaPlot = rnaPlot(),
-                     transcript_start = filter(transcript_locations, refseq_mrna == input$transcriptID)$transcript_start,
-                     transcript_end = filter(transcript_locations, refseq_mrna == input$transcriptID)$transcript_end,
+                     transcriptID = input$transcriptID,
                      chr = chr()
       )
       

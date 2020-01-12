@@ -8,15 +8,22 @@ params:
   gvizPlot: NA
   tf_legend: NA
   rnaPlot: NA
-  transcript_start: NA
-  transcript_end: NA
   chr: NA
+  transcriptID: NA
 ---
 
 ```{r include=FALSE}
 library(Gviz)
 library(ggplot2)
 library(ggpubr)
+library(feather)
+library(GenomicRanges)
+# source('/Gviz_Plots.R')
+# 
+# ENSEMBL_hg38_local_fromGTF <- read_feather('/ENSEMBL_hg38_local_fromGTF.feather') %>%
+#   makeGRangesFromDataFrame(keep.extra.columns = T)
+# 
+# transcript_locations <- read_feather('/transcript_locations.feather')
 ```
 
 ## Summary for `r params$gene`.
@@ -25,7 +32,21 @@ Include information such as correlation cuttoff, selected transcript, etc.
 \newpage
 
 ```{r echo=FALSE, fig.height=14, fig.width=12}
+
 x <- params$gvizPlot
+
+transcript_start <- if(params$transcriptID == 'Any'){
+  getGtfCoords(params$gene,ENSEMBL_hg38_local_fromGTF)[[2]]
+} else{
+  filter(transcript_locations, refseq_mrna == params$transcriptID)$transcript_start
+}
+
+transcript_end <- if(params$transcriptID == 'Any'){
+  getGtfCoords(params$gene,ENSEMBL_hg38_local_fromGTF)[[3]]
+} else{
+  filter(transcript_locations, refseq_mrna == params$transcriptID)$transcript_end
+}
+
 
 # for(i in 2:14){
 #   x[[i]]@dp@pars$fontsize = 10
@@ -33,8 +54,8 @@ x <- params$gvizPlot
 # }
 
 plotTracks(HighlightTrack(x[1:(length(x)-1)],
-                            start = params$transcript_start,
-                            end = params$transcript_end,
+                            start = transcript_start,
+                            end = transcript_end,
                             chr = params$chr), col.title = 'black', 
            from = params$xrange[1], to = params$xrange[2])
 

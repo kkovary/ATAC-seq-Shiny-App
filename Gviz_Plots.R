@@ -12,7 +12,7 @@ library(Gviz)
 library(GenomicRanges)
 #library(GenomicFeatures)
 #library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-library(biomaRt)
+#library(biomaRt)
 library(S4Vectors)
 library(SummarizedExperiment)
 # colors <- c('#E181F4','#7DCD2C','#F6D7B5','#F9DAFF','#D1E8BA',
@@ -31,14 +31,14 @@ library(SummarizedExperiment)
 # Functions
 ###############################################################################
 
-getEnsemblCoords <- function(GENE) {
-  # Too slow, don't use
-  bm <- getBM(attributes = c("transcript_start", "transcript_end"), 
-              filters = c("hgnc_symbol"), values = c(GENE), mart = ensembl)
-  g.start <- min(bm$transcript_start)
-  g.end <- max(bm$transcript_end)
-  return(c(g.start,g.end))
-}
+# getEnsemblCoords <- function(GENE) {
+#   # Too slow, don't use
+#   bm <- getBM(attributes = c("transcript_start", "transcript_end"), 
+#               filters = c("hgnc_symbol"), values = c(GENE), mart = ensembl)
+#   g.start <- min(bm$transcript_start)
+#   g.end <- max(bm$transcript_end)
+#   return(c(g.start,g.end))
+# }
 
 getGtfCoords <- function(GENE, tbl = gtf) {
   
@@ -51,20 +51,20 @@ getGtfCoords <- function(GENE, tbl = gtf) {
   return(list(g.chr, g.start, g.end))
 }
 
-getGvizCoords <- function(gene.symbol) {
-  
-  biomTrack <- BiomartGeneRegionTrack(genome="hg38", 
-                                      name="ENSEMBL", 
-                                      biomart=ensembl, 
-                                      symbol = gene.symbol)
-  
-  g.chr <- Gviz::seqlevels(biomTrack)
-  pos <- Gviz::position(biomTrack)
-  g.beg <- min(pos)
-  g.end <- max(pos)
-  
-  return(list(g.chr, g.beg, g.end, biomTrack))
-}
+# getGvizCoords <- function(gene.symbol) {
+#   
+#   biomTrack <- BiomartGeneRegionTrack(genome="hg38", 
+#                                       name="ENSEMBL", 
+#                                       biomart=ensembl, 
+#                                       symbol = gene.symbol)
+#   
+#   g.chr <- Gviz::seqlevels(biomTrack)
+#   pos <- Gviz::position(biomTrack)
+#   g.beg <- min(pos)
+#   g.end <- max(pos)
+#   
+#   return(list(g.chr, g.beg, g.end, biomTrack))
+# }
 
 
 attachMotifs <- function(motif.list, se, chr = NULL, beg = NULL, END = NULL) {
@@ -130,13 +130,13 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   })
   
   if(is.na(corCut)){
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% transcriptID) &
                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
                               (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut) &
                               start(cor.gr) > beg & 
                               end(cor.gr) < END]
   } else{
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% transcriptID) &
                               (elementMetadata(cor.gr)$estimate >= corCut) |
                               (elementMetadata(cor.gr)$estimate <= -corCut) & 
                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
@@ -179,8 +179,13 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
   #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
+  if(length(transcriptID) > 1){
+    highlight <- data.frame(transcript_start = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[2]], 
+                            transcript_end = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[3]])
+  } else{
+    highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
+  }
   
-  highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
   
   print("plotting")
   plotTracks(HighlightTrack(plotList,
@@ -277,7 +282,7 @@ plot_clust_motif <- function(gene.symbol = GENE, slop = SLOP,
 ###############################################################################
 
 # Get BiomaRt objects
-ensembl <- useMart("ensembl",dataset="hsapiens_gene_ensembl")
+#ensembl <- useMart("ensembl",dataset="hsapiens_gene_ensembl")
 
 #coverage.files <- paste0("Gviz/", list.files("Gviz"))
 color.scheme <- read_csv('Color_Scheme.csv')
