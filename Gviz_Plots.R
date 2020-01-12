@@ -203,79 +203,79 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
 # Plot clusters and motifs tracks
 ###################################################
 
-plot_clust_motif <- function(gene.symbol = GENE, slop = SLOP, 
-                             genome = "hg38", anno.gr = peaks.gr, 
-                             coverage.list, ylims = c(0,100),
-                             coords = NULL, chr = NULL,
-                             beg = NULL, END = NULL,
-                             transcriptID = NULL,
-                             corCut = 0,
-                             pval_cut = 1,
-                             cluster_id = NULL,
-                             motifs_list = NULL){
-  
-  
-  biomTrack <- coords[[4]]
-  filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
-  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks", col = 'transparent')
-  
-  if(is.na(corCut)){
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
-                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut) &
-                              start(cor.gr) > beg & 
-                              end(cor.gr) < END]
-  } else{
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
-                              (elementMetadata(cor.gr)$estimate >= corCut) |
-                              (elementMetadata(cor.gr)$estimate <= -corCut) & 
-                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)&
-                              start(cor.gr) > beg & 
-                              end(cor.gr) < END]
-  }
-  
-  
-  corTrack <- AnnotationTrack(
-    cor.gr.subset,
-    name = 'Cor',
-    fill = elementMetadata(cor.gr.subset)$cluster.color,
-    col = '#DCDCDC'
-    #col = 'transparent'
-  )
-  
-  if(!is.null(motifs_list)){
-    motifs_tracks <- attachMotifs(motifs_list, motifs, chr, beg, END)
-    
-    motifsTrackList <- lapply(1:length(motifs_tracks), function(x) {
-      AnnotationTrack(range = motifs_tracks[[x]],
-                      fill = pal_jco()(10)[x],
-                      col = '#DCDCDC',
-                      name = motifs_list[x])
-    })
-    
-    
-    
-  }
-  
-  if(is.null(motifs_list)){
-    plotList <- c(peakTrack, corTrack, biomTrack)
-  } else{
-    plotList <- c(peakTrack, corTrack, biomTrack, motifsTrackList)
-  }
-  
-  highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'), 
-                     filters = "refseq_mrna", values = transcriptID, mart= ensembl)
-  
-  plotTracks(HighlightTrack(plotList,
-                            start = highlight$transcript_start,
-                            end = highlight$transcript_end,
-                            chr = chr), 
-             transcriptAnnotation = "name", 
-             ylim = ylims, col.title = 'black', from = beg, to = END,
-             title.width = 3)
-  
-}
+# plot_clust_motif <- function(gene.symbol = GENE, slop = SLOP, 
+#                              genome = "hg38", anno.gr = peaks.gr, 
+#                              coverage.list, ylims = c(0,100),
+#                              coords = NULL, chr = NULL,
+#                              beg = NULL, END = NULL,
+#                              transcriptID = NULL,
+#                              corCut = 0,
+#                              pval_cut = 1,
+#                              cluster_id = NULL,
+#                              motifs_list = NULL){
+#   
+#   
+#   biomTrack <- coords[[4]]
+#   filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
+#   peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks", col = 'transparent')
+#   
+#   if(is.na(corCut)){
+#     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+#                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
+#                               (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut) &
+#                               start(cor.gr) > beg & 
+#                               end(cor.gr) < END]
+#   } else{
+#     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id == transcriptID) &
+#                               (elementMetadata(cor.gr)$estimate >= corCut) |
+#                               (elementMetadata(cor.gr)$estimate <= -corCut) & 
+#                               (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
+#                               (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)&
+#                               start(cor.gr) > beg & 
+#                               end(cor.gr) < END]
+#   }
+#   
+#   
+#   corTrack <- AnnotationTrack(
+#     cor.gr.subset,
+#     name = 'Cor',
+#     fill = elementMetadata(cor.gr.subset)$cluster.color,
+#     col = '#DCDCDC'
+#     #col = 'transparent'
+#   )
+#   
+#   if(!is.null(motifs_list)){
+#     motifs_tracks <- attachMotifs(motifs_list, motifs, chr, beg, END)
+#     
+#     motifsTrackList <- lapply(1:length(motifs_tracks), function(x) {
+#       AnnotationTrack(range = motifs_tracks[[x]],
+#                       fill = pal_jco()(10)[x],
+#                       col = '#DCDCDC',
+#                       name = motifs_list[x])
+#     })
+#     
+#     
+#     
+#   }
+#   
+#   if(is.null(motifs_list)){
+#     plotList <- c(peakTrack, corTrack, biomTrack)
+#   } else{
+#     plotList <- c(peakTrack, corTrack, biomTrack, motifsTrackList)
+#   }
+#   
+#   highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'), 
+#                      filters = "refseq_mrna", values = transcriptID, mart= ensembl)
+#   
+#   plotTracks(HighlightTrack(plotList,
+#                             start = highlight$transcript_start,
+#                             end = highlight$transcript_end,
+#                             chr = chr), 
+#              transcriptAnnotation = "name", 
+#              ylim = ylims, col.title = 'black', from = beg, to = END,
+#              title.width = 3)
+#   
+# }
 
 ###############################################################################
 # MAIN
