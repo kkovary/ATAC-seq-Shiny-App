@@ -52,13 +52,14 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             ),
                             sliderInput(
                               'ymax',
-                              label = h5('Normalized ATAC-seq Coverage'),
+                              label = h5('Y-axis scale - ATAC-seq signal'),
                               min = 0,
                               max = 1000,
                               value = 200
                             ),
                             hr(style="border-color: grey"),
                             h4('Peak-gene links'),
+                            h6('We defined putative enhancer-gene linkages on the basis of the correlation of accessibility and gene expression across cell lineages. These parameters filter the data displayed by features of those correlations.'),
                             selectInput(
                               'transcriptID',
                               label = h5('Transcript ID'),
@@ -87,10 +88,11 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             #                    choiceValues = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
                             #                    selected = c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS'),
                             #                    inline = F),
-                            
+                            h4(''),
+                            hr(style="border-color: grey"),
                             pickerInput(
                               inputId = "tf_motifs",
-                              label = "Select/deselect TF Motifs",
+                              label = "Select TF motifs to display",
                               choices = motifs@colData@rownames,
                               options = list(
                                 `actions-box` = TRUE,
