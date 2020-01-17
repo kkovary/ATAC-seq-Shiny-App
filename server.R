@@ -192,6 +192,7 @@ shinyServer(function(input, output, session) {
     gvizPlot()
   })
   
+  outputOptions(output, suspendWhenHidden = FALSE)
   outputOptions(output, 'gviz', suspendWhenHidden = FALSE)
   outputOptions(output, 'rnaExpression.ui', suspendWhenHidden = FALSE)
   
