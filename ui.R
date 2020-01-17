@@ -70,7 +70,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             ),
                             conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
                                              shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
-                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17; white-space:normal; width:45%; height:75px"),
+                                                                 style="color: #fff; background-color: #64dd17; white-space:normal; width:45%; height:75px"),
                                              downloadButton("report", h6("Download\nSummary"),
                                                             style = "white-space:normal; width:45%; height:75px")
                             ),
