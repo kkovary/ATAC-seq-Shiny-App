@@ -5,12 +5,74 @@ shinyServer(function(input, output, session) {
                                                           selected=my_selected, 
                                                           colors=my_colors))
   
-  # geneNames <- reactive({
-  #   #type <- input$accessionType
-  #   type <- 'gene.symbol'
-  #   names <- data[, type] %>% unique() %>% unlist() %>% as.vector()
-  #   names[order(names)]
+  search_types <- reactive(return(input$search_type == 'SNP ID'))
+  
+  # Logic to control if SNP ID search should be displayed or not
+  observe({
+    shinyjs::toggle(id = 'snp_search', condition = search_types())
+  })
+  
+  # observe({
+  #   if(input$search_type == 'SNP ID'){
+  #     insertUI(
+  #       selector = "#add",
+  #       where = "afterEnd",
+  #       ui = textInput(
+  #         "snp_search",
+  #         label = 'SNP ID Search',
+  #         value = ''
+  #         #choices = c('a','b','c')
+  #       )
+  #     )
+  #   } 
+  #   
+  #   if(exists('input$snp_search') & input$search_type != 'SNP ID'){
+  #     removeUI(selector = "div:has(>> #snp_search)", multiple = TRUE)
+  #   }
   # })
+  
+  # Output boolean whether searched SNP ID exists or not
+  # output$snp_text <- renderText({
+  #   if(input$search_type == 'SNP ID'){
+  #     input$snp %in% snp_table$SNP.ID
+  #   } else{
+  #     NULL
+  #   }
+  # })
+  
+  
+  
+  geneNames <- reactive({
+    if(search_types()){
+      if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
+        snp_gene(snp_id = input$snp_search)
+      } else{
+        'Enter valid SNP ID'
+      }
+    } else{
+      gene_names
+    }
+  })
+  
+  observe({
+    if(search_types()){
+      updatePickerInput(
+        session,
+        inputId = 'gene',
+        choices = geneNames(),
+        selected = geneNames()[1]
+      )
+    } else{
+      updatePickerInput(
+        session,
+        inputId = 'gene',
+        choices = geneNames(),
+        selected = 'NEUROG2'
+      )
+    }
+
+  })
+  
   
   transcriptID <- eventReactive(input$plot_button, {
     data %>% filter(gene.symbol == input$gene) %>%

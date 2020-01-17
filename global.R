@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(shinycssloaders)
+library(shinyjs)
 library(shinysky)
 library(DT)
 library(shinyWidgets)
@@ -8,6 +9,7 @@ library(ggsci)
 library(ggpubr)
 library(feather)
 source('Gviz_Plots.R')
+
 
 my_names <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
 my_selected <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
@@ -24,6 +26,7 @@ SLOP = 50000
 # load in genelist to speed loading up
 # reading csv is faster than rds
 data <- read_feather('lite_bc_annotated_rna_dataframe_long.feather')
+gene_names <- as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))]
 
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
 
@@ -38,6 +41,8 @@ ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather')
 ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('ENSEMBL_Gviz_GeneTrackRegionObject.RDS')
 
 transcript_locations <- read_feather('transcript_locations.feather')
+
+snp_table <- read_feather('SNP_Lookup_Table.feather')
 
 # Functions
 
@@ -86,3 +91,21 @@ my_checkboxGroupInput <- function(variable, label, choices, selected, colors){
       )
   )
 }
+
+
+# Input SNP ID and get back list of genes within range (example rs144861725)
+snp_gene <- function(snp_id, gr = ENSEMBL_hg38_local_fromGTF, snp_tbl = snp_table){
+  positions <- dplyr::filter(snp_tbl, SNP.ID == snp_id)
+  start <- positions$start - SLOP
+  end <- positions$end + SLOP
+  
+  gr <- gr[seqnames(gr) == as.character(positions$chrom) & start(gr) > positions$start - SLOP & end(gr) < positions$end + SLOP]
+  gr <- unique(gr$gene_name)
+  
+  if(sum(gr %in% gene_names) > 0){
+    return(gr[gr %in% gene_names])
+  } else{
+    return('No valid genes in range')
+  }
+}
+

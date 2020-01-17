@@ -3,6 +3,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                           shiny::includeHTML('HTML/ATACBrowserText.html')
                  ),
                  tabPanel('Explore Data',
+                          useShinyjs(),
                           sidebarPanel(
                             titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
                             width = 2,
@@ -16,20 +17,30 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             #   h4('Accession Type'),
                             #   c('Gene Symbol' = 'gene.symbol', 'Transcript ID' = 'transcript_id')
                             # ),
-                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
-                                             shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
-                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17; white-space:normal; width:45%"),
-                                             downloadButton("report", h6("Download\nSummary"),
-                                                            style = "white-space:normal; width:45%")
-                            ),
                             
                             h4(''),
                             hr(style="border-color: grey"),
+                            
+                          
+                            
+                            radioButtons('search_type', 
+                                         label = 'Search Options', 
+                                         choices = c('Gene Name','SNP ID'),
+                                         selected = 'Gene Name',
+                                         inline = TRUE
+                                         ),
+                            textInput(
+                              "snp_search",
+                              label = 'SNP ID Search',
+                              value = ''
+                            ),
+                            verbatimTextOutput('snp_text'),
+                            
                             pickerInput(
                               inputId = "gene",
                               label = h5('Gene Search'),
                               selected = 'NEUROG2',
-                              choices = as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))],
+                              choices = gene_names,
                               options = list(
                                 `live-search` = TRUE,
                                 title = 'Gene Name'
@@ -56,6 +67,12 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               min = 0,
                               max = 1000,
                               value = 200
+                            ),
+                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
+                                             shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
+                                                                 style="color: #fff; background-color: #64dd17; border-color: #64dd17; white-space:normal; width:45%"),
+                                             downloadButton("report", h6("Download\nSummary"),
+                                                            style = "white-space:normal; width:45%")
                             ),
                             hr(style="border-color: grey"),
                             h4('Peak-gene links'),
