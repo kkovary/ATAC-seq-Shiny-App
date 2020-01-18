@@ -7,6 +7,8 @@ shinyServer(function(input, output, session) {
   
   search_types <- reactive(return(input$search_type == 'SNP ID'))
   
+  output$h <- reactive(1000)
+  
   # Logic to control if SNP ID search should be displayed or not
   observe({
     shinyjs::toggle(id = 'snp_search', condition = search_types())
@@ -167,8 +169,9 @@ shinyServer(function(input, output, session) {
     values_d$cor_cut <- debounce(function(){input$cor_cut},2000)
     values_d$pval_cut <- debounce(function(){input$pval_cut},2000)
     values_d$tf_motifs <- debounce(function(){input$tf_motifs},2000)
+    values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2000)
   })
-  
+
   gvizPlot <- reactive({
     
     plotGenomeView(
@@ -183,7 +186,8 @@ shinyServer(function(input, output, session) {
       corCut = values_d$cor_cut(),
       pval_cut = values_d$pval_cut(),
       cluster_id = values_d$clusterID(),
-      motifs_list = values_d$tf_motifs()
+      motifs_list = values_d$tf_motifs(),
+      selected_rows = values_d$selectedRows()
     )
   })
   
@@ -295,6 +299,8 @@ shinyServer(function(input, output, session) {
     tf_legend()
   })
   
+  
+
   ### Download Report
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"

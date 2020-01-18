@@ -88,7 +88,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            corCut = 0,
                            pval_cut = 1,
                            cluster_id = NULL,
-                           motifs_list = NULL) {
+                           motifs_list = NULL,
+                           selected_rows = NULL) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
@@ -145,6 +146,21 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                               end(cor.gr) < END]
   }
   
+
+  
+  if(length(selected_rows) > 0){
+    selected_rows_track <- AnnotationTrack(
+      cor.gr.subset[selected_rows,],
+      name = 'Selected',
+      fill = elementMetadata(cor.gr.subset[selected_rows,])$cluster.color,
+      #col = '#DCDCDC'
+      col = 'transparent'
+    )
+  } else{
+    selected_rows_track <- NULL
+  }
+  
+  
   
   corTrack <- AnnotationTrack(
     cor.gr.subset,
@@ -170,9 +186,9 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   }
   
   if(is.null(motifs_list)){
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject)
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, selected_rows_track, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, NULL)
   } else{
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, motifsTrackList)
+    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, selected_rows_track, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, motifsTrackList)
   }
 
   
