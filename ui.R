@@ -121,7 +121,8 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               ),
                               multiple = TRUE
                             ),
-                            textOutput("selected_tf_motifs")
+                            textOutput("selected_tf_motifs"),
+                            h6('Peaks containing the selected motifs will be displayed on the ATAC-seq plot.'),
                           ),
                           # withSpinner(
                           #   uiOutput("rnaExpression.ui"),

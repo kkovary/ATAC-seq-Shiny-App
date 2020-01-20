@@ -49,7 +49,7 @@ shinyServer(function(input, output, session) {
       if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
         snp_gene(snp_id = input$snp_search)
       } else{
-        'Enter valid SNP ID'
+        'Genes near selected SNP'
       }
     } else{
       gene_names
