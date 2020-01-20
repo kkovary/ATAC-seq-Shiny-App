@@ -11,8 +11,14 @@ library(feather)
 source('Gviz_Plots.R')
 
 
-my_names <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
-my_selected <- c('MG1','MG2','GP','PL','EA1','EA2','PN1','PN2','LN1','LN2','CS')
+my_names <- c('Mature Glia 1','Mature Glia 2','Glial Progenitors',
+              'Pluripotency','Early Differentiation 1','Early Differentiation 2',
+              'Pallial Neuron 1','Pallial Neuron 2','Late Neuron 1',
+              'Late Neuron 2','Constitutive')
+my_selected <- c('Mature Glia 1','Mature Glia 2','Glial Progenitors',
+                 'Pluripotency','Early Differentiation 1','Early Differentiation 2',
+                 'Pallial Neuron 1','Pallial Neuron 2','Late Neuron 1',
+                 'Late Neuron 2','Constitutive')
 my_colors <- c('#9E0142','#D53E4F','#F46D43','#FFFFBF','#E6F598','#6BAED6',
                '#3288BD','#5E4FA2','#ABDDA4','#66C2A5','#969696')
 
@@ -30,7 +36,7 @@ gene_names <- as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$ge
 
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
 
-cor.gr <- read_feather('correlation_genomic_ranges.feather') %>%
+cor.gr <- read_feather('Webpage_Table_Display_nocolors.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
 motifs <- readRDS('Motif_SummarizedExperiment.RDS')
@@ -38,7 +44,7 @@ motifs <- readRDS('Motif_SummarizedExperiment.RDS')
 ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
-ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('ENSEMBL_Gviz_GeneTrackRegionObject.RDS')
+ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
 
 transcript_locations <- read_feather('transcript_locations.feather')
 

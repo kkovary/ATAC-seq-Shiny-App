@@ -226,24 +226,21 @@ shinyServer(function(input, output, session) {
   # Peaks table
   cor.gr_table <- reactive({
     if(is.na(input$cor_cut)){
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% values_d$transcriptID()) &
-                                (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
+                                (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
+                                (elementMetadata(cor.gr)$correlation.local.model.P <= values_d$pval_cut()) &
                                 start(cor.gr) > xrange()[1] & 
                                 end(cor.gr) < xrange()[2]]
     } else{
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% values_d$transcriptID()) &
-                                (elementMetadata(cor.gr)$estimate >= values_d$cor_cut()) & 
-                                (elementMetadata(cor.gr)$cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$vs.null.p.value <= values_d$pval_cut()) &
+      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
+                                (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= values_d$cor_cut()) & 
+                                (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
+                                (elementMetadata(cor.gr)$correlation.local.model.P <= values_d$pval_cut()) &
                                 start(cor.gr) > xrange()[1] & 
                                 end(cor.gr) < xrange()[2]]
     }
     dplyr::as_tibble(cor.gr.subset) %>% 
-      dplyr::select(cluster.color, gene.symbol, transcript_id, 
-                    cluster.name, estimate, vs.null.p.value, dplyr::everything(),
-                    -width, -strand, -mean.gene.corr, -sd.gene.corr, 
-                    -ncorrs, -KM3.ord)
+      dplyr::select(colors, everything())
   })
   
   
@@ -260,7 +257,7 @@ shinyServer(function(input, output, session) {
                        buttons = c('csv', 'excel'),
                        pageLength = nrow(cor.gr_table())
                      )
-    ) %>% formatStyle('cluster.color',  
+    ) %>% formatStyle('colors',  
                       color = styleEqual(c('#ABDDA4'), c('#ABDDA4')), 
                       backgroundColor = styleEqual(c('#ABDDA4'), c('#ABDDA4'))
     )

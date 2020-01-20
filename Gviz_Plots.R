@@ -131,17 +131,17 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   })
   
   if(is.na(corCut)){
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% transcriptID) &
-                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut) &
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% transcriptID) &
+                              (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
+                              (elementMetadata(cor.gr)$correlation.local.model.P <= pval_cut) &
                               start(cor.gr) > beg & 
                               end(cor.gr) < END]
   } else{
-    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$transcript_id %in% transcriptID) &
-                              (elementMetadata(cor.gr)$estimate >= corCut) |
-                              (elementMetadata(cor.gr)$estimate <= -corCut) & 
-                              (elementMetadata(cor.gr)$cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$vs.null.p.value <= pval_cut)&
+    cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% transcriptID) &
+                              (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= corCut) |
+                              (elementMetadata(cor.gr)$Pearson.r.peak.transcript <= -corCut) & 
+                              (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
+                              (elementMetadata(cor.gr)$correlation.local.model.P <= pval_cut)&
                               start(cor.gr) > beg & 
                               end(cor.gr) < END]
   }
@@ -152,7 +152,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
     selected_rows_track <- AnnotationTrack(
       cor.gr.subset[selected_rows,],
       name = 'Selected',
-      fill = elementMetadata(cor.gr.subset[selected_rows,])$cluster.color,
+      fill = elementMetadata(cor.gr.subset[selected_rows,])$colors,
       #col = '#DCDCDC'
       col = 'transparent'
     )
@@ -165,7 +165,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   corTrack <- AnnotationTrack(
     cor.gr.subset,
     name = 'Cor',
-    fill = elementMetadata(cor.gr.subset)$cluster.color,
+    fill = elementMetadata(cor.gr.subset)$colors,
     #col = '#DCDCDC'
     col = 'transparent'
   )
