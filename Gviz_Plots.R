@@ -212,7 +212,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
              transcriptAnnotation = "gene",
              #collapseTranscripts = "meta",
              ylim = ylims, col.title = 'black', from = beg, to = END,
-             title.width = 3)
+             title.width = 3,
+             lwd = 2)
   
 }
 
