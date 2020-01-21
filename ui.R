@@ -21,14 +21,14 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             h4(''),
                             hr(style="border-color: grey"),
                             
-                          
+                            
                             
                             radioButtons('search_type', 
                                          label = 'Search Options', 
                                          choices = c('Gene Name','SNP ID'),
                                          selected = 'Gene Name',
                                          inline = TRUE
-                                         ),
+                            ),
                             textInput(
                               "snp_search",
                               label = 'SNP ID Search',
@@ -68,12 +68,10 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               max = 1000,
                               value = 200
                             ),
-                            conditionalPanel(condition = "!$('html').hasClass('shiny-busy')",
-                                             shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
-                                                                 style="color: #fff; background-color: #64dd17; white-space:normal; width:45%; height:75px"),
-                                             downloadButton("report", h6("Download\nSummary"),
-                                                            style = "white-space:normal; width:45%; height:75px")
-                            ),
+                            shiny::actionButton("plot_button", h6("Refresh\nPlot"), icon = icon("refresh"),
+                                                style="color: #fff; background-color: #64dd17; white-space:normal; width:45%; height:75px"),
+                            downloadButton("report", h6("Download\nSummary"),
+                                           style = "white-space:normal; width:45%; height:75px"),
                             hr(style="border-color: grey"),
                             h4('Peak-gene links'),
                             h6('We defined putative enhancer-gene linkages on the basis of the correlation of accessibility and gene expression across cell lineages. These parameters filter the data displayed by features of those correlations.'),
@@ -140,7 +138,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                                        dataTableOutput('peaks_table') %>% withSpinner(type = 6)
                               ),
                               tabPanel('ATAC-seq',
-                                       plotOutput('gviz', height = 1100) %>% withSpinner(type = 6),
+                                       plotOutput('gviz', height = 1500) %>% withSpinner(type = 6),
                                        #plotOutput('gvizClust') %>% withSpinner(type = 6),
                                        plotOutput('tf_legend', height = 100)
                                        #busyIndicator(text = '')

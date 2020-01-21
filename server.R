@@ -165,11 +165,11 @@ shinyServer(function(input, output, session) {
         return(input$transcriptID)
       }
       },0)
-    values_d$clusterID <- debounce(function(){input$clusterID},2000)
-    values_d$cor_cut <- debounce(function(){input$cor_cut},2000)
-    values_d$pval_cut <- debounce(function(){input$pval_cut},2000)
-    values_d$tf_motifs <- debounce(function(){input$tf_motifs},2000)
-    values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2000)
+    values_d$clusterID <- debounce(function(){input$clusterID},2500)
+    values_d$cor_cut <- debounce(function(){input$cor_cut},2500)
+    values_d$pval_cut <- debounce(function(){input$pval_cut},2500)
+    values_d$tf_motifs <- debounce(function(){input$tf_motifs},2500)
+    values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2500)
   })
 
   gvizPlot <- reactive({
@@ -228,14 +228,14 @@ shinyServer(function(input, output, session) {
     if(is.na(input$cor_cut)){
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
                                 (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$correlation.local.model.P <= values_d$pval_cut()) &
+                                (elementMetadata(cor.gr)$correlation.global.model.P <= values_d$pval_cut()) &
                                 start(cor.gr) > xrange()[1] & 
                                 end(cor.gr) < xrange()[2]]
     } else{
       cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
                                 (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= values_d$cor_cut()) & 
                                 (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$correlation.local.model.P <= values_d$pval_cut()) &
+                                (elementMetadata(cor.gr)$correlation.global.model.P <= values_d$pval_cut()) &
                                 start(cor.gr) > xrange()[1] & 
                                 end(cor.gr) < xrange()[2]]
     }

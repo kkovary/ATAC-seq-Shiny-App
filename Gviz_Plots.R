@@ -133,7 +133,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   if(is.na(corCut)){
     cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% transcriptID) &
                               (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$correlation.local.model.P <= pval_cut) &
+                              (elementMetadata(cor.gr)$correlation.global.model.P <= pval_cut) &
                               start(cor.gr) > beg & 
                               end(cor.gr) < END]
   } else{
@@ -141,7 +141,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                               (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= corCut) |
                               (elementMetadata(cor.gr)$Pearson.r.peak.transcript <= -corCut) & 
                               (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
-                              (elementMetadata(cor.gr)$correlation.local.model.P <= pval_cut)&
+                              (elementMetadata(cor.gr)$correlation.global.model.P <= pval_cut)&
                               start(cor.gr) > beg & 
                               end(cor.gr) < END]
   }
