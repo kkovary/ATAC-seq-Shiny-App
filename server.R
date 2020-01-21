@@ -170,6 +170,7 @@ shinyServer(function(input, output, session) {
     values_d$pval_cut <- debounce(function(){input$pval_cut},2500)
     values_d$tf_motifs <- debounce(function(){input$tf_motifs},2500)
     values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2500)
+    values_d$greater_less <- debounce(function(){input$greater_less}, 2000)
   })
 
   gvizPlot <- reactive({
@@ -187,7 +188,8 @@ shinyServer(function(input, output, session) {
       pval_cut = values_d$pval_cut(),
       cluster_id = values_d$clusterID(),
       motifs_list = values_d$tf_motifs(),
-      selected_rows = values_d$selectedRows()
+      selected_rows = values_d$selectedRows(),
+      greater_less = values_d$greater_less()
     )
   })
   
@@ -225,22 +227,10 @@ shinyServer(function(input, output, session) {
   
   # Peaks table
   cor.gr_table <- reactive({
-    if(is.na(input$cor_cut)){
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
-                                (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$correlation.global.model.P <= values_d$pval_cut()) &
-                                start(cor.gr) > xrange()[1] & 
-                                end(cor.gr) < xrange()[2]]
-    } else{
-      cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% values_d$transcriptID()) &
-                                (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= values_d$cor_cut()) & 
-                                (elementMetadata(cor.gr)$KM.cluster.name %in% values_d$clusterID()) &
-                                (elementMetadata(cor.gr)$correlation.global.model.P <= values_d$pval_cut()) &
-                                start(cor.gr) > xrange()[1] & 
-                                end(cor.gr) < xrange()[2]]
-    }
-    dplyr::as_tibble(cor.gr.subset) %>% 
-      dplyr::select(colors, everything())
+    
+    corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
+              transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
+              beg = xrange()[1], END = xrange()[2]) %>% dplyr::as_tibble() %>% dplyr::select(colors, everything())
   })
   
   

@@ -89,6 +89,9 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               max = 1,
                               step = 0.05
                             ),
+                            radioButtons('greater_less',
+                                         label = NULL,
+                                         choices = c('Greater than','Less than')),
                             numericInput(
                               'pval_cut',
                               'p.value Cutoff',

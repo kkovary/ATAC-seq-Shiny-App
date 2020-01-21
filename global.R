@@ -115,3 +115,42 @@ snp_gene <- function(snp_id, gr = ENSEMBL_hg38_local_fromGTF, snp_tbl = snp_tabl
   }
 }
 
+# Filter cor table
+corFilter <- function(cor_table = cor.gr, greater_less = 'Greater than', cor_cut = 0, transcript_ID = 'NM_024019',
+                      cluster_id = my_names, pval_cut = 1, beg = 112463516, END = 112566180){
+  
+  # Filter based on transcript
+  if(!is.na(transcript_ID)){
+    cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
+  }
+  
+  # Filter based on correlation
+  if(!is.na(cor_cut)){
+    cor_table = switch(greater_less,
+               'Greater than' = cor_table[elementMetadata(cor_table)$Pearson.r.peak.transcript > cor_cut],
+               'Less than' = cor_table[elementMetadata(cor_table)$Pearson.r.peak.transcript < cor_cut]
+    )
+  }
+  
+  # Filter based on cluster ID
+  if(length(cluster_id) > 0){
+    cor_table = cor_table[elementMetadata(cor_table)$KM.cluster.name %in% cluster_id]
+  }
+  
+  # Filter based on pvalue
+  if(!is.na(pval_cut)){
+    cor_table = cor_table[elementMetadata(cor_table)$correlation.global.model.P <= pval_cut]
+  }
+  
+  # Filter based on beginning
+  if(!is.na(beg)){
+    cor_table = cor_table[start(cor_table) > beg]
+  }
+  
+  if(!is.na(END)){
+    cor_table = cor_table[end(cor_table) < END]
+  }
+  
+  return(cor_table)
+  
+}
