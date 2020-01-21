@@ -111,7 +111,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   print(as.character(coords[1:3]))
   
   axisTrack <- GenomeAxisTrack(fontsize = 20)
-  idxTrack <- IdeogramTrack(genome = genome, chromosome = chr)
+  idxTrack <- IdeogramTrack(genome = genome, chromosome = chr, fontsize = 20)
   
   print("filtering")
   filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
@@ -131,26 +131,10 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               fontsize = 12)
   })
   
+  # Subset the correlation table
   cor.gr.subset <- corFilter(cor_table = cor.gr, greater_less = greater_less, cor_cut = corCut,
             transcript_ID = transcriptID, cluster_id = cluster_id, pval_cut = pval_cut,
             beg = beg, END = END)
-  
-  # if(is.na(corCut)){
-  #   cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% transcriptID) &
-  #                             (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
-  #                             (elementMetadata(cor.gr)$correlation.global.model.P <= pval_cut) &
-  #                             start(cor.gr) > beg &
-  #                             end(cor.gr) < END]
-  # } else{
-  #   cor.gr.subset <- cor.gr[(elementMetadata(cor.gr)$correlated.transcript.ID %in% transcriptID) &
-  #                             (elementMetadata(cor.gr)$Pearson.r.peak.transcript >= corCut) |
-  #                             (elementMetadata(cor.gr)$Pearson.r.peak.transcript <= -corCut) &
-  #                             (elementMetadata(cor.gr)$KM.cluster.name %in% cluster_id) &
-  #                             (elementMetadata(cor.gr)$correlation.global.model.P <= pval_cut)&
-  #                             start(cor.gr) > beg &
-  #                             end(cor.gr) < END]
-  # }
-  # 
 
   
   if(length(selected_rows) > 0){
