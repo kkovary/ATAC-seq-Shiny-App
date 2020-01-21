@@ -81,17 +81,19 @@ ui <- navbarPage(title = 'ATAC-Seq',
                               choices = '',
                               multiple = FALSE
                             ),
+                            h5('Correlation Cutoff'),
+                            radioButtons('greater_less',
+                                         label = NULL,
+                                         choices = c('Greater than','Less than'),
+                                         inline = TRUE),
                             numericInput(
                               'cor_cut',
-                              'Correlation Cutoff',
+                              label = NULL,
                               value = NA,
                               min = -1,
                               max = 1,
                               step = 0.05
                             ),
-                            radioButtons('greater_less',
-                                         label = NULL,
-                                         choices = c('Greater than','Less than')),
                             numericInput(
                               'pval_cut',
                               'p.value Cutoff',
