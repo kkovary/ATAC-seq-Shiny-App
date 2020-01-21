@@ -170,7 +170,7 @@ shinyServer(function(input, output, session) {
     values_d$pval_cut <- debounce(function(){input$pval_cut},2500)
     values_d$tf_motifs <- debounce(function(){input$tf_motifs},2500)
     values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2500)
-    values_d$greater_less <- debounce(function(){input$greater_less}, 2000)
+    values_d$greater_less <- debounce(function(){input$greater_less}, 1000)
   })
 
   gvizPlot <- reactive({
