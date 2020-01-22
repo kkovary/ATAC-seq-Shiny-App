@@ -1,5 +1,6 @@
 ui <- navbarPage(title = 'ATAC-Seq',
                  tabPanel('Introduction',
+                          shiny::tags$head(includeHTML(('HTML/googleAnalytics.html'))),
                           shiny::includeHTML('HTML/ATACBrowserText.html')
                  ),
                  tabPanel('Explore Data',
@@ -45,6 +46,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                                 title = 'Gene Name'
                               )
                             ),
+                            textOutput('text'),
                             # selectizeInput(
                             #   'gene',
                             #   label = h5('Gene Search'),
