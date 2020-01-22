@@ -14,36 +14,8 @@ shinyServer(function(input, output, session) {
     shinyjs::toggle(id = 'snp_search', condition = search_types())
   })
   
-  # observe({
-  #   if(input$search_type == 'SNP ID'){
-  #     insertUI(
-  #       selector = "#add",
-  #       where = "afterEnd",
-  #       ui = textInput(
-  #         "snp_search",
-  #         label = 'SNP ID Search',
-  #         value = ''
-  #         #choices = c('a','b','c')
-  #       )
-  #     )
-  #   } 
-  #   
-  #   if(exists('input$snp_search') & input$search_type != 'SNP ID'){
-  #     removeUI(selector = "div:has(>> #snp_search)", multiple = TRUE)
-  #   }
-  # })
-  
-  # Output boolean whether searched SNP ID exists or not
-  # output$snp_text <- renderText({
-  #   if(input$search_type == 'SNP ID'){
-  #     input$snp %in% snp_table$SNP.ID
-  #   } else{
-  #     NULL
-  #   }
-  # })
-  
-  
-  
+
+  # Update gene names
   geneNames <- reactive({
     if(search_types()){
       if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
@@ -72,7 +44,7 @@ shinyServer(function(input, output, session) {
         selected = 'NEUROG2'
       )
     }
-
+    
   })
   
   
@@ -92,7 +64,16 @@ shinyServer(function(input, output, session) {
   
   output$rnaExpression <- renderPlot({
     rnaPlot()
-  }, height = function(){ceiling(length(unique(rnaPlot()$data$transcript_id))/4) * 350})
+  }, height = function(){
+    if(length(rnaPlot()$data) > 0){
+      ceiling(length(unique(rnaPlot()$data$transcript_id))/4) * 350
+    } else{
+      350
+    }
+  }
+  
+  
+  )
   
   output$rnaExpression.ui <- renderUI({
     
@@ -110,10 +91,10 @@ shinyServer(function(input, output, session) {
   
   
   observe({
-      updateSliderInput(session, 'xrange',
-                        min = gvizCoords()[[2]] - 3E5 - SLOP,
-                        max = gvizCoords()[[3]] + 3E5 + SLOP,
-                        value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
+    updateSliderInput(session, 'xrange',
+                      min = gvizCoords()[[2]] - 3E5 - SLOP,
+                      max = gvizCoords()[[3]] + 3E5 + SLOP,
+                      value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
   }, priority = 9)
   
   tfMotifFilter <- reactive({
@@ -130,16 +111,16 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-      updatePickerInput(
-        session,
-        inputId = 'tf_motifs',
-        selected = NULL,
-        choices = tfMotifFilter()
-      )
+    updatePickerInput(
+      session,
+      inputId = 'tf_motifs',
+      selected = NULL,
+      choices = tfMotifFilter()
+    )
   })
   
-
-# Define and update input variables  
+  
+  # Define and update input variables  
   gene <- reactiveVal('NEUROG2')
   ymax <- reactiveVal(200)
   xrange <- reactiveVal(c(112463516, 112566180))
@@ -152,11 +133,11 @@ shinyServer(function(input, output, session) {
     chr(unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]]))
   })
   
-
+  
   # Throttle response to dynamic inputs by using
   # the debounce function
   values_d <- reactiveValues()
-
+  
   observe({
     values_d$transcriptID <- debounce(function(){
       if(input$transcriptID == 'Any'){
@@ -164,7 +145,7 @@ shinyServer(function(input, output, session) {
       } else{
         return(input$transcriptID)
       }
-      },0)
+    },0)
     values_d$clusterID <- debounce(function(){input$clusterID},2500)
     values_d$cor_cut <- debounce(function(){input$cor_cut},2500)
     values_d$pval_cut <- debounce(function(){input$pval_cut},2500)
@@ -172,7 +153,7 @@ shinyServer(function(input, output, session) {
     values_d$selectedRows <- debounce(function(){input$peaks_table_rows_selected}, 2500)
     values_d$greater_less <- debounce(function(){input$greater_less}, 1000)
   })
-
+  
   gvizPlot <- reactive({
     
     plotGenomeView(
@@ -287,7 +268,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-
+  
   ### Download Report
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"
