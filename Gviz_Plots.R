@@ -127,7 +127,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   # Subset the correlation table
   
   print("131")
-  if(length(cor.gr[elementMetadata(cor.gr)$correlated.gene.symbol %in% gene.symbol]) > 0){
+  if(length(cor.gr[elementMetadata(cor.gr)$correlated.gene.symbol %in% gene.symbol]) > 0 | gene.symbol[1] == 'Any'){
     cor.gr.subset <- corFilter(cor_table = cor.gr, greater_less = greater_less, cor_cut = corCut,
                                transcript_ID = transcriptID, cluster_id = cluster_id, pval_cut = pval_cut,
                                beg = beg, END = END, chr = chr, gene.name = gene.symbol)
@@ -186,7 +186,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
   #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
   print("186")
-  if(gene.symbol == 'Any'){
+  if(gene.symbol[1] == 'Any'){
     highlight <- data.frame(transcript_start = NULL,
                             transcript_end = NULL)
   } else{

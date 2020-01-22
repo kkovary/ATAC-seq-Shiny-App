@@ -193,23 +193,42 @@ shinyServer(function(input, output, session) {
   })
   
   gvizPlot <- reactive({
+    if(gene() == 'Any'){
+      plotGenomeView(
+        gene.symbol = geneNames(),
+        coverage.list = coverage.list,
+        ylims = c(0, ymax()),
+        #coords = NULL, #gvizCoords(),
+        chr = chrom(),
+        beg = xrange()[1],
+        END = xrange()[2],
+        transcriptID = values_d$transcriptID(),
+        corCut = values_d$cor_cut(),
+        pval_cut = values_d$pval_cut(),
+        cluster_id = values_d$clusterID(),
+        motifs_list = values_d$tf_motifs(),
+        selected_rows = values_d$selectedRows(),
+        greater_less = values_d$greater_less()
+      )
+    } else{
+      plotGenomeView(
+        gene.symbol = gene(),
+        coverage.list = coverage.list,
+        ylims = c(0, ymax()),
+        #coords = NULL, #gvizCoords(),
+        chr = chrom(),
+        beg = xrange()[1],
+        END = xrange()[2],
+        transcriptID = values_d$transcriptID(),
+        corCut = values_d$cor_cut(),
+        pval_cut = values_d$pval_cut(),
+        cluster_id = values_d$clusterID(),
+        motifs_list = values_d$tf_motifs(),
+        selected_rows = values_d$selectedRows(),
+        greater_less = values_d$greater_less()
+      )
+    }
     
-    plotGenomeView(
-      gene.symbol = gene(),
-      coverage.list = coverage.list,
-      ylims = c(0, ymax()),
-      #coords = NULL, #gvizCoords(),
-      chr = chrom(),
-      beg = xrange()[1],
-      END = xrange()[2],
-      transcriptID = values_d$transcriptID(),
-      corCut = values_d$cor_cut(),
-      pval_cut = values_d$pval_cut(),
-      cluster_id = values_d$clusterID(),
-      motifs_list = values_d$tf_motifs(),
-      selected_rows = values_d$selectedRows(),
-      greater_less = values_d$greater_less()
-    )
   })
   
   
@@ -221,36 +240,22 @@ shinyServer(function(input, output, session) {
   outputOptions(output, 'gviz', suspendWhenHidden = FALSE)
   outputOptions(output, 'rnaExpression.ui', suspendWhenHidden = FALSE)
   
-  # Plot clusters and motifs tracks
-  # gvizPlotClust <- reactive({
-  # 
-  #   plot_clust_motif(
-  #     gene.symbol = gene(),
-  #     coverage.list = coverage.list,
-  #     ylims = c(0, ymax()),
-  #     coords = NULL, #gvizCoords(),
-  #     chr = chr(),
-  #     beg = xrange()[1],
-  #     END = xrange()[2],
-  #     transcriptID = input$transcriptID,
-  #     corCut = values_d$cor_cut(),
-  #     pval_cut = values_d$pval_cut(),
-  #     cluster_id = values_d$clusterID(),
-  #     motifs_list = values_d$tf_motifs()
-  #   )
-  # })
-  # 
-  # output$gvizClust <- renderPlot({
-  #   gvizPlotClust()
-  # })
+
   
   # Peaks table
   cor.gr_table <- reactive({
+    if(gene() == 'Any'){
+      corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
+                transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
+                beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = geneNames()) %>% 
+        dplyr::as_tibble() %>% dplyr::select(colors, everything())
+    } else{
+      corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
+                transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
+                beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = gene()) %>% 
+        dplyr::as_tibble() %>% dplyr::select(colors, everything())
+    }
     
-    corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
-              transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
-              beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = gene()) %>% 
-      dplyr::as_tibble() %>% dplyr::select(colors, everything())
   })
   
   

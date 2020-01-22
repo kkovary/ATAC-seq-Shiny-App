@@ -157,19 +157,21 @@ corFilter <- function(cor_table = cor.gr, greater_less = 'Greater than', cor_cut
   # }
 
   # Filter based on gene
-  if(gene.name!= 'Any'){
-    cor_table <- cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
-  }
+  # if(gene.name != 'Any'){
+  #   cor_table <- cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
+  # }
   
   # Filter based on transcript or show all if "Any" gene is displayed
-  if(gene.name != 'Any' & transcript_ID != 'Any'){
+  if(gene.name[1] != 'Any'){
     cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
+  } else{
+    cor_table = cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
   }
 
   # Filter based on transcript
-  if(!is.na(transcript_ID)){
-    cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
-  }
+  # if(!is.na(transcript_ID)){
+  #   cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
+  # }
   
   # Filter based on correlation
   if(!is.na(cor_cut)){
