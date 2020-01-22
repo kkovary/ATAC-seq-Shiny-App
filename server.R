@@ -5,31 +5,40 @@ shinyServer(function(input, output, session) {
                                                           selected=my_selected, 
                                                           colors=my_colors))
   
-  search_types <- reactive(return(input$search_type == 'SNP ID'))
   
   output$h <- reactive(1000)
   
-  # Logic to control if SNP ID search should be displayed or not
+  # Logic for search inputs
+  snp_search <- function(){return(F)}#reactive(return(input$search_type == 'SNP ID'))
   observe({
-    shinyjs::toggle(id = 'snp_search', condition = search_types())
+    shinyjs::toggle(id = 'snp_search', condition = input$search_type == 'SNP ID')
+    shinyjs::toggle(id = 'coord_chr', condition = input$search_type == 'Coordinates' & input$gene == 'Any')
+    shinyjs::toggle(id = 'coord_min', condition = input$search_type == 'Coordinates' & input$gene == 'Any')
+    shinyjs::toggle(id = 'coord_max', condition = input$search_type == 'Coordinates' & input$gene == 'Any')
+    shinyjs::toggle(id = 'xrange', condition = input$search_type != 'Coordinates' | input$gene != 'Any')
   })
+
   
 
   # Update gene names
   geneNames <- reactive({
-    if(search_types()){
-      if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
-        snp_gene(snp_id = input$snp_search)
-      } else{
-        'Genes near selected SNP'
-      }
-    } else{
-      gene_names
-    }
+    
+    switch(input$search_type,
+           'Gene Name' = gene_names,
+           'SNP ID' = {
+             if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
+               snp_gene(snp_id = input$snp_search)
+             } else{
+               'Genes near selected SNP'
+             }
+           },
+           'Coordinates' = genes_xrange(xmin = input$coord_min, xmax = input$coord_max, chr = input$coord_chr))
   })
   
+
+  
   observe({
-    if(search_types()){
+    if(input$search_type != 'Gene Name'){
       updatePickerInput(
         session,
         inputId = 'gene',
@@ -91,14 +100,22 @@ shinyServer(function(input, output, session) {
   
   
   observe({
-    updateSliderInput(session, 'xrange',
-                      min = gvizCoords()[[2]] - 3E5 - SLOP,
-                      max = gvizCoords()[[3]] + 3E5 + SLOP,
-                      value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
+    if(input$search_type == 'Coordinates' & input$gene == 'Any'){
+      updateSliderInput(session, 'xrange',
+                        min = input$coord_min - 3E5 - SLOP,
+                        max = input$coord_max + 3E5 + SLOP,
+                        value = c(input$coord_min, input$coord_max))
+    } else{
+      updateSliderInput(session, 'xrange',
+                        min = gvizCoords()[[2]] - 3E5 - SLOP,
+                        max = gvizCoords()[[3]] + 3E5 + SLOP,
+                        value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
+    }
+    
   }, priority = 9)
   
   tfMotifFilter <- reactive({
-    filtered = motifs[seqnames(motifs) == chr() & 
+    filtered = motifs[seqnames(motifs) == chrom() & 
                         start(motifs) >= xrange()[1] & 
                         end(motifs) <= xrange()[2]]
     
@@ -124,13 +141,34 @@ shinyServer(function(input, output, session) {
   gene <- reactiveVal('NEUROG2')
   ymax <- reactiveVal(200)
   xrange <- reactiveVal(c(112463516, 112566180))
-  chr <- reactiveVal(unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1]))
+  chrom <- reactiveVal(unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1]))
+  
+  # chrom <- reactiveVal({
+  #   if(input$search_type == 'Coordinates'){
+  #     input$coord_chr
+  #   } else{
+  #     gvizCoords()[[1]]
+  #   }
+  # })
+  
   
   observeEvent(input$plot_button, {
     gene(input$gene)
     ymax(input$ymax)
-    xrange(input$xrange)
-    chr(unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]]))
+    xrange({
+      if(input$gene == 'Any'){
+        c(input$coord_min, input$coord_max)
+      } else{
+        input$xrange
+      }
+    })
+    chrom({
+      if(input$gene == 'Any'){
+        input$coord_chr
+      } else{
+        unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]])
+      }
+      })
   })
   
   
@@ -160,8 +198,8 @@ shinyServer(function(input, output, session) {
       gene.symbol = gene(),
       coverage.list = coverage.list,
       ylims = c(0, ymax()),
-      coords = NULL, #gvizCoords(),
-      chr = chr(),
+      #coords = NULL, #gvizCoords(),
+      chr = chrom(),
       beg = xrange()[1],
       END = xrange()[2],
       transcriptID = values_d$transcriptID(),
@@ -211,7 +249,8 @@ shinyServer(function(input, output, session) {
     
     corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
               transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
-              beg = xrange()[1], END = xrange()[2]) %>% dplyr::as_tibble() %>% dplyr::select(colors, everything())
+              beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = gene()) %>% 
+      dplyr::as_tibble() %>% dplyr::select(colors, everything())
   })
   
   
@@ -288,7 +327,7 @@ shinyServer(function(input, output, session) {
                      tf_legend = tf_legend(),
                      rnaPlot = rnaPlot(),
                      transcriptID = input$transcriptID,
-                     chr = chr()
+                     chr = chrom()
       )
       
       # Knit the document, passing in the `params` list, and eval it in a

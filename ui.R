@@ -21,21 +21,22 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             h4(''),
                             hr(style="border-color: grey"),
                             
-                            
-                            
-                            radioButtons('search_type', 
-                                         label = 'Search Options', 
-                                         choices = c('Gene Name','SNP ID'),
-                                         selected = 'Gene Name',
-                                         inline = TRUE
+                            selectInput('search_type', 
+                                         label = 'Search Type', 
+                                         choices = c('Gene Name','SNP ID','Coordinates'),
+                                         selected = 'Gene Name'
                             ),
                             textInput(
                               "snp_search",
                               label = 'SNP ID Search',
                               value = ''
                             ),
-                            verbatimTextOutput('snp_text'),
-                            
+                            selectInput('coord_chr', 
+                                        label = 'Chromosome Number', 
+                                        choices = chromosomes
+                                        ),
+                            numericInput('coord_min', label = 'Min', value = 0),
+                            numericInput('coord_max', label = 'Max', value = 0),
                             pickerInput(
                               inputId = "gene",
                               label = 'Gene Search',
@@ -143,7 +144,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                                        dataTableOutput('peaks_table') %>% withSpinner(type = 6)
                               ),
                               tabPanel('ATAC-seq',
-                                       plotOutput('gviz', height = 1500) %>% withSpinner(type = 6),
+                                       plotOutput('gviz', height = 1200) %>% withSpinner(type = 6),
                                        #plotOutput('gvizClust') %>% withSpinner(type = 6),
                                        plotOutput('tf_legend', height = 100)
                                        #busyIndicator(text = '')

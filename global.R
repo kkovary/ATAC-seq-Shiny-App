@@ -1,3 +1,12 @@
+# Set Bioconductor repositories for shinyapps.io:
+# library(BiocManager)
+# options(repos = BiocManager::repositories())
+
+# Load data
+
+# load in genelist to speed loading up
+# reading csv is faster than rds
+
 library(shiny)
 library(tidyverse)
 library(shinycssloaders)
@@ -23,21 +32,18 @@ my_colors <- c('#9E0142','#D53E4F','#F46D43','#FFFFBF','#E6F598','#6BAED6',
                '#3288BD','#5E4FA2','#ABDDA4','#66C2A5','#969696')
 
 SLOP = 50000
-# Set Bioconductor repositories for shinyapps.io:
-# library(BiocManager)
-# options(repos = BiocManager::repositories())
 
-# Load data
-
-# load in genelist to speed loading up
-# reading csv is faster than rds
 data <- read_feather('lite_bc_annotated_rna_dataframe_long.feather')
 
 ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
-gene_names <- unique(ENSEMBL_hg38_local_fromGTF$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF$gene_name))]
+gene_names <- unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA')]$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA')]$gene_name))]
 #gene_names <- as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))]
+
+
+chromosomes <- c(paste0('chr',c(1:22,'M','X','Y')))
+
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
 
 cor.gr <- read_feather('Webpage_Table_Display_nocolors.feather') %>%
@@ -100,25 +106,67 @@ my_checkboxGroupInput <- function(variable, label, choices, selected, colors){
 
 
 # Input SNP ID and get back list of genes within range (example rs144861725)
-snp_gene <- function(snp_id, gr = ENSEMBL_hg38_local_fromGTF, snp_tbl = snp_table){
+snp_gene <- function(snp_id, table = ENSEMBL_hg38_local_fromGTF, snp_tbl = snp_table){
   positions <- dplyr::filter(snp_tbl, SNP.ID == snp_id)
   start <- positions$start - SLOP
   end <- positions$end + SLOP
   
-  gr <- gr[seqnames(gr) == as.character(positions$chrom) & start(gr) > positions$start - SLOP & end(gr) < positions$end + SLOP]
-  gr <- unique(gr$gene_name)
+  table <- table[seqnames(table) == as.character(positions$chrom) & 
+             start(table) > positions$start - SLOP & 
+             end(table) < positions$end + SLOP &
+             elementMetadata(table)$gene_biotype %in% c('protein_coding','lncRNA')]
+  table <- c('Any', unique(table$gene_name))
   
-  if(sum(gr %in% gene_names) > 0){
-    return(gr[gr %in% gene_names])
-  } else{
-    return('No valid genes in range')
-  }
+  return(table)
+  # if(sum(table %in% gene_names) > 0){
+  #   return(table[table %in% gene_names])
+  # } else{
+  #   return('No genes in range')
+  # }
+  
 }
 
-# Filter cor table
-corFilter <- function(cor_table = cor.gr, greater_less = 'Greater than', cor_cut = 0, transcript_ID = 'NM_024019',
-                      cluster_id = my_names, pval_cut = 1, beg = 112463516, END = 112566180){
+# Find coordinates of gene
+getGtfCoords <- function(GENE, tbl = gtf) {
   
+  gtf2 <- tbl[tbl@elementMetadata$gene_name==GENE]
+  
+  g.chr <- min(as.character(seqnames(gtf2)))
+  g.start <- min(start(gtf2))
+  g.end <- max(end(gtf2))
+  
+  return(list(g.chr, g.start, g.end))
+}
+
+# Find genes in xrange
+genes_xrange <- function(xmin = NULL, xmax = NULL, chr = NULL, table = ENSEMBL_hg38_local_fromGTF){
+  table <- table[seqnames(table) == chr & start(table) >= xmin & end(table) <= xmax &
+                   elementMetadata(table)$gene_biotype %in% c('protein_coding','lncRNA')]
+  return(c('Any',unique(table$gene_name)))
+}
+
+
+# Filter cor table
+corFilter <- function(cor_table = cor.gr, greater_less = 'Greater than', cor_cut = NA, transcript_ID = 'Any',
+                      cluster_id = my_names, pval_cut = 1, beg = NULL, END = NULL, chr = NULL, gene.name = 'Any'){
+  
+  # if(gene.name != 'Any'){
+  #   new_coords <- getGtfCoords(gene.name, ENSEMBL_hg38_local_fromGTF)
+  #   chr <- new_coords[[1]]
+  #   beg <- new_coords[[2]]
+  #   END <- new_coords[[3]]
+  # }
+
+  # Filter based on gene
+  if(gene.name!= 'Any'){
+    cor_table <- cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
+  }
+  
+  # Filter based on transcript or show all if "Any" gene is displayed
+  if(gene.name != 'Any' & transcript_ID != 'Any'){
+    cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
+  }
+
   # Filter based on transcript
   if(!is.na(transcript_ID)){
     cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
@@ -126,6 +174,7 @@ corFilter <- function(cor_table = cor.gr, greater_less = 'Greater than', cor_cut
   
   # Filter based on correlation
   if(!is.na(cor_cut)){
+    cor_table <- cor_table[!is.na(elementMetadata(cor_table)$Pearson.r.peak.transcript)]
     cor_table = switch(greater_less,
                'Greater than' = cor_table[elementMetadata(cor_table)$Pearson.r.peak.transcript > cor_cut],
                'Less than' = cor_table[elementMetadata(cor_table)$Pearson.r.peak.transcript < cor_cut]

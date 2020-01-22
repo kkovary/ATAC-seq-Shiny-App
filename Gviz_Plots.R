@@ -40,16 +40,7 @@ library(SummarizedExperiment)
 #   return(c(g.start,g.end))
 # }
 
-getGtfCoords <- function(GENE, tbl = gtf) {
-  
-  gtf2 <- tbl[tbl@elementMetadata$gene_name==GENE]
-  
-  g.chr <- min(as.character(seqnames(gtf2)))
-  g.start <- min(start(gtf2))
-  g.end <- max(end(gtf2))
-  
-  return(list(g.chr, g.start, g.end))
-}
+
 
 # getGvizCoords <- function(gene.symbol) {
 #   
@@ -82,7 +73,7 @@ attachMotifs <- function(motif.list, se, chr = NULL, beg = NULL, END = NULL) {
 plotGenomeView <- function(gene.symbol = GENE, slop = SLOP, 
                            genome = "hg38", anno.gr = peaks.gr, 
                            coverage.list, ylims = c(0,100),
-                           coords = NULL, chr = NULL,
+                           chr = NULL,
                            beg = NULL, END = NULL,
                            transcriptID = NULL,
                            corCut = 0,
@@ -96,11 +87,13 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
   
   print("obtaining coordinates")
-  if(is.null(coords)){
-    coords <- getGtfCoords(gene.symbol, ENSEMBL_hg38_local_fromGTF)
-  }
+  # if(is.null(coords)){
+  #   coords <- getGtfCoords(gene.symbol, ENSEMBL_hg38_local_fromGTF)
+  # }
   
-  if(is.null(beg) & is.null(END)){
+  if(is.null(beg) & is.null(END) & length(chr) == 0){
+    coords <- getGtfCoords(gene.symbol, ENSEMBL_hg38_local_fromGTF)
+    
     chr <- coords[[1]]
     beg <- coords[[2]]
     END <- coords[[3]]
@@ -108,7 +101,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
-  print(as.character(coords[1:3]))
+  #print(as.character(coords[1:3]))
   
   axisTrack <- GenomeAxisTrack(fontsize = 20)
   idxTrack <- IdeogramTrack(genome = genome, chromosome = chr, fontsize = 20)
@@ -134,7 +127,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   # Subset the correlation table
   cor.gr.subset <- corFilter(cor_table = cor.gr, greater_less = greater_less, cor_cut = corCut,
             transcript_ID = transcriptID, cluster_id = cluster_id, pval_cut = pval_cut,
-            beg = beg, END = END)
+            beg = beg, END = END, chr = chr, gene.name = gene.symbol)
 
   
   if(length(selected_rows) > 0){
@@ -143,7 +136,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
       name = 'Selected',
       fill = elementMetadata(cor.gr.subset[selected_rows,])$colors,
       #col = '#DCDCDC'
-      col = 'transparent'
+      col = 'transparent',
+      size = 3
     )
   } else{
     selected_rows_track <- NULL
@@ -185,12 +179,29 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   
   # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
   #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
-  if(length(transcriptID) > 1){
-    highlight <- data.frame(transcript_start = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[2]], 
-                            transcript_end = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[3]])
+  
+  if(gene.symbol == 'Any'){
+    highlight <- data.frame(transcript_start = NULL,
+                            transcript_end = NULL)
   } else{
-    highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
+    if(length(transcriptID) > 1){
+      highlight <- data.frame(transcript_start = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[2]], 
+                              transcript_end = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[3]])
+    } else{
+      highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
+    }
   }
+  
+  # if(length(transcriptID) > 1){
+  #   highlight <- data.frame(transcript_start = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[2]], 
+  #                           transcript_end = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[3]])
+  # } else if(gene.symbol == 'Any'){
+  #   highlight <- data.frame(transcript_start = beg,
+  #                           transcript_end = END)
+  # } else{
+  #   highlight <- transcript_locations %>% filter(refseq_mrna == transcriptID)
+  # }
+  
   
   
   print("plotting")
@@ -202,7 +213,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
              #collapseTranscripts = "meta",
              ylim = ylims, col.title = 'black', from = beg, to = END,
              title.width = 3,
-             lwd = 2)
+             lwd = 2,
+             min.height = 10)
   
 }
 
