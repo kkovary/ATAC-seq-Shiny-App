@@ -33,6 +33,9 @@ SLOP = 50000
 # reading csv is faster than rds
 data <- read_feather('lite_bc_annotated_rna_dataframe_long.feather')
 
+ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+
 gene_names <- unique(ENSEMBL_hg38_local_fromGTF$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF$gene_name))]
 #gene_names <- as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))]
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
@@ -42,8 +45,6 @@ cor.gr <- read_feather('Webpage_Table_Display_nocolors.feather') %>%
 
 motifs <- readRDS('Motif_SummarizedExperiment.RDS')
 
-ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
-  makeGRangesFromDataFrame(keep.extra.columns = T)
 
 ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
 
