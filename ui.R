@@ -8,9 +8,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
                             width = 2,
                             chooseSliderSkin("Modern", color = '#428bca'),
-                            shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}',
-                                              ".shiny-output-error { visibility: hidden; }",
-                                              ".shiny-output-error:before { visibility: hidden; }"), 
+                            shiny::tags$style(type='text/css', '#selected_tf_motifs {background-color: #DCDCDC;}'), 
                             #shiny::tags$head(shiny::tags$style(type='text/css', ".slider-animate-button { font-size: 1pt !important; }")),
                             # selectInput(
                             #   'accessionType',
@@ -135,6 +133,10 @@ ui <- navbarPage(title = 'ATAC-Seq',
                           # ),
                           mainPanel(
                             width = 10,
+                            shiny::tags$style(type="text/css",
+                                       ".shiny-output-error { visibility: hidden; }",
+                                       ".shiny-output-error:before { visibility: hidden; }"
+                            ),
                             tabsetPanel(
                               tabPanel('RNA-seq',
                                        uiOutput("rnaExpression.ui")

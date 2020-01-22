@@ -38,11 +38,10 @@ data <- read_feather('lite_bc_annotated_rna_dataframe_long.feather')
 ENSEMBL_hg38_local_fromGTF <- read_feather('ENSEMBL_hg38_local_fromGTF.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
-gene_names <- unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA')]$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA')]$gene_name))]
-#gene_names <- as.vector(unique(data$gene.symbol))[order(as.vector(unique(data$gene.symbol)))]
+#gene_names <- unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA') & as.vector(ENSEMBL_hg38_local_fromGTF@seqnames) != 'chrM']$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA') & as.vector(ENSEMBL_hg38_local_fromGTF@seqnames) != 'chrM']$gene_name))]
+gene_names <- readRDS('gene_names.RDS')
 
-
-chromosomes <- c(paste0('chr',c(1:22,'M','X','Y')))
+chromosomes <- c(paste0('chr',c(1:22,'X','Y')))
 
 peaks.gr <- readRDS('All_Merged_Peaks_GenomicRanges.RDS')
 

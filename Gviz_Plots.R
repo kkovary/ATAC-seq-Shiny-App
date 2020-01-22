@@ -110,7 +110,7 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   filt.gr <- anno.gr[seqnames(anno.gr)==chr & start(anno.gr) > beg - slop & end(anno.gr) < END + slop] 
   
   print("importing peaks")
-  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks", col = 'transparent')
+  peakTrack <- AnnotationTrack(filt.gr, name = "Distal Peaks", col = 'transparent', size = 3)
   
   print("importing coverage")
   covTrackList <- lapply(1:length(coverage.list), function(x) {
@@ -123,12 +123,29 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
               background.title = colors[x],
               fontsize = 12)
   })
-  
+  print("126")
   # Subset the correlation table
-  cor.gr.subset <- corFilter(cor_table = cor.gr, greater_less = greater_less, cor_cut = corCut,
-            transcript_ID = transcriptID, cluster_id = cluster_id, pval_cut = pval_cut,
-            beg = beg, END = END, chr = chr, gene.name = gene.symbol)
-
+  
+  print("131")
+  if(length(cor.gr[elementMetadata(cor.gr)$correlated.gene.symbol %in% gene.symbol]) > 0){
+    cor.gr.subset <- corFilter(cor_table = cor.gr, greater_less = greater_less, cor_cut = corCut,
+                               transcript_ID = transcriptID, cluster_id = cluster_id, pval_cut = pval_cut,
+                               beg = beg, END = END, chr = chr, gene.name = gene.symbol)
+    
+    corTrack <- AnnotationTrack(
+      cor.gr.subset,
+      name = 'Cor',
+      fill = elementMetadata(cor.gr.subset)$colors,
+      #col = '#DCDCDC'
+      col = 'transparent'
+    )
+  } else{
+    corTrack <- NULL
+  }
+  print("143")
+  
+  
+  
   
   if(length(selected_rows) > 0){
     selected_rows_track <- AnnotationTrack(
@@ -142,16 +159,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   } else{
     selected_rows_track <- NULL
   }
+  print("160")
   
-  
-  
-  corTrack <- AnnotationTrack(
-    cor.gr.subset,
-    name = 'Cor',
-    fill = elementMetadata(cor.gr.subset)$colors,
-    #col = '#DCDCDC'
-    col = 'transparent'
-  )
   
   if(!is.null(motifs_list)){
     motifs_tracks <- attachMotifs(motifs_list, motifs, chr, beg, END)
@@ -163,23 +172,20 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                       col = 'transparent',
                       name = motifs_list[x])
     })
-    
-      
-
-  }
-  
-  if(is.null(motifs_list)){
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, selected_rows_track, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, NULL)
   } else{
-    plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, selected_rows_track, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, motifsTrackList)
+    motifsTrackList <- NULL
   }
-
+  print("176")
+  
+  plotList <- c(idxTrack, axisTrack, covTrackList, peakTrack, selected_rows_track, corTrack, ENSEMBL_Gviz_GeneTrackRegionObject, motifsTrackList)
+  
+  
   
   #plotList <- c(idxTrack, axisTrack, covTrackList)
   
   # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
   #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
-  
+  print("186")
   if(gene.symbol == 'Any'){
     highlight <- data.frame(transcript_start = NULL,
                             transcript_end = NULL)
