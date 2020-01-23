@@ -56,6 +56,7 @@ shinyServer(function(input, output, session) {
     
   })
   
+
   
   transcriptID <- eventReactive(input$plot_button, {
     data %>% filter(gene.symbol == input$gene) %>%
@@ -112,7 +113,7 @@ shinyServer(function(input, output, session) {
                         value = c(gvizCoords()[[2]] - SLOP,gvizCoords()[[3]] + SLOP))
     }
     
-  }, priority = 9)
+  }, priority = 100)
   
   tfMotifFilter <- reactive({
     filtered = motifs[seqnames(motifs) == chrom() & 
@@ -347,5 +348,6 @@ shinyServer(function(input, output, session) {
     }
   )
   
+  delay(0,hide(id = "loading-content", anim = TRUE, animType = "fade", time = 0.5))
   
 })

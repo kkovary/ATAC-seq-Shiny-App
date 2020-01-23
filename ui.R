@@ -1,3 +1,17 @@
+appCSS <- "
+#loading-content {
+  position: absolute;
+  background: #000000;
+  opacity: 0.9;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  height: 100%;
+  text-align: center;
+  color: #FFFFFF;
+}
+"
+
 ui <- navbarPage(title = 'ATAC-Seq',
                  tabPanel('Introduction',
                           shiny::tags$head(includeHTML(('HTML/googleAnalytics.html'))),
@@ -6,6 +20,14 @@ ui <- navbarPage(title = 'ATAC-Seq',
                  tabPanel('Explore Data',
                           shiny::tags$head(includeHTML(('HTML/googleAnalytics.html'))),
                           useShinyjs(),
+                          
+                          # Create loading message that hides app until
+                          # it is loaded
+                          inlineCSS(appCSS),
+                          div(
+                            id = "loading-content",
+                            h2("Loading...")
+                          ),
                           sidebarPanel(
                             titlePanel(h2('ATAC-Seq Explorer', align = 'center')),
                             width = 2,
