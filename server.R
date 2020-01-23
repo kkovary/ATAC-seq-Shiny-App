@@ -46,6 +46,10 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  geneNamesUpdate <- eventReactive(input$plot_button, {
+    geneNames()
+  })
+  
   snp_xrange <- reactive({
     snp_xrange_temp <- filter(snp_table, SNP.ID == input$snp_search)
     if(nrow(snp_xrange_temp) > 0){
@@ -219,7 +223,7 @@ shinyServer(function(input, output, session) {
   gvizPlot <- reactive({
     if(gene() == 'Any'){
       plotGenomeView(
-        gene.symbol = geneNames(),
+        gene.symbol = geneNamesUpdate(),
         coverage.list = coverage.list,
         ylims = c(0, ymax()),
         chr = chrom(),
@@ -270,7 +274,7 @@ shinyServer(function(input, output, session) {
     if(gene() == 'Any'){
       corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
                 transcript_ID = values_d$transcriptID(), cluster_id = values_d$clusterID(), pval_cut = values_d$pval_cut(),
-                beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = geneNames()) %>% 
+                beg = xrange()[1], END = xrange()[2], chr = chrom(), gene.name = geneNamesUpdate()) %>% 
         dplyr::as_tibble() %>% dplyr::select(colors, everything())
     } else{
       corFilter(cor_table = cor.gr, greater_less = values_d$greater_less(), cor_cut = values_d$cor_cut(),
