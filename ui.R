@@ -108,7 +108,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             radioButtons('greater_less',
                                          label = NULL,
                                          choices = c('Greater than','Less than'),
-                                         inline = TRUE),
+                                         inline = FALSE),
                             numericInput(
                               'cor_cut',
                               label = NULL,
