@@ -33,29 +33,29 @@ my_colors <- c('#9E0142','#D53E4F','#F46D43','#FFFFBF','#E6F598','#6BAED6',
 
 SLOP = 50000
 
-data <- read_feather('data/lite_bc_annotated_rna_dataframe_long.feather')
+data <- read_feather('Data/lite_bc_annotated_rna_dataframe_long.feather')
 
-ENSEMBL_hg38_local_fromGTF <- read_feather('data/ENSEMBL_hg38_local_fromGTF.feather') %>%
+ENSEMBL_hg38_local_fromGTF <- read_feather('Data/ENSEMBL_hg38_local_fromGTF.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
 #gene_names <- unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA') & as.vector(ENSEMBL_hg38_local_fromGTF@seqnames) != 'chrM']$gene_name)[order(unique(ENSEMBL_hg38_local_fromGTF[elementMetadata(ENSEMBL_hg38_local_fromGTF)$gene_biotype %in% c('protein_coding','lncRNA') & as.vector(ENSEMBL_hg38_local_fromGTF@seqnames) != 'chrM']$gene_name))]
-gene_names <- readRDS('data/gene_names.RDS')
+gene_names <- readRDS('Data/gene_names.RDS')
 
 chromosomes <- c(paste0('chr',c(1:22,'X','Y')))
 
-peaks.gr <- readRDS('data/All_Merged_Peaks_GenomicRanges.RDS')
+peaks.gr <- readRDS('Data/All_Merged_Peaks_GenomicRanges.RDS')
 
-cor.gr <- read_feather('data/Webpage_Table_Display_nocolors.feather') %>%
+cor.gr <- read_feather('Data/Webpage_Table_Display_nocolors.feather') %>%
   makeGRangesFromDataFrame(keep.extra.columns = T)
 
-motifs <- readRDS('data/Motif_SummarizedExperiment.RDS')
+motifs <- readRDS('Data/Motif_SummarizedExperiment.RDS')
 
 
-ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('data/ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
+ENSEMBL_Gviz_GeneTrackRegionObject <- readRDS('Data/ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
 
-transcript_locations <- read_feather('data/transcript_locations.feather')
+transcript_locations <- read_feather('Data/transcript_locations.feather')
 
-snp_table <- read_feather('data/SNP_Lookup_Table.feather')
+snp_table <- read_feather('Data/SNP_Lookup_Table.feather')
 
 # Functions
 
