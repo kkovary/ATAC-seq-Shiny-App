@@ -81,7 +81,8 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
                            cluster_id = NULL,
                            motifs_list = NULL,
                            selected_rows = NULL,
-                           greater_less = 'Greater than') {
+                           greater_less = 'Greater than',
+                           snp_xrange = NULL) {
   
   #print("creating track")
   #biomTrack <- BiomartGeneRegionTrack(genome=genome, name="ENSEMBL", biomart=ensembl, symbol = gene.symbol)
@@ -186,9 +187,12 @@ plotGenomeView <- function(gene.symbol = GENE, slop = SLOP,
   # highlight <- getBM(attributes=c("refseq_mrna", "ensembl_gene_id", "hgnc_symbol",'transcript_start','transcript_end'),
   #                    filters = "refseq_mrna", values = transcriptID, mart= ensembl)
   print("186")
-  if(gene.symbol[1] == 'Any'){
+  if(gene.symbol[1] == 'Any' & is.null(snp_xrange)){
     highlight <- data.frame(transcript_start = NULL,
                             transcript_end = NULL)
+  } else if(!is.null(snp_xrange)){
+    highlight <- data.frame(transcript_start = snp_xrange$start,
+                            transcript_end = snp_xrange$end)
   } else{
     if(length(transcriptID) > 1){
       highlight <- data.frame(transcript_start = getGtfCoords(gene.symbol,ENSEMBL_hg38_local_fromGTF)[[2]], 

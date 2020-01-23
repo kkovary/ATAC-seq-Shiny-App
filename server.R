@@ -9,7 +9,7 @@ shinyServer(function(input, output, session) {
   output$h <- reactive(1000)
   
   # Logic for search inputs
-  snp_search <- function(){return(F)}#reactive(return(input$search_type == 'SNP ID'))
+  #snp_search <- function(){return(F)}#reactive(return(input$search_type == 'SNP ID'))
   observe({
     shinyjs::toggle(id = 'snp_search', condition = input$search_type == 'SNP ID')
     shinyjs::toggle(id = 'coord_chr', condition = input$search_type == 'Coordinates' & input$gene == 'Any')
@@ -17,9 +17,9 @@ shinyServer(function(input, output, session) {
     shinyjs::toggle(id = 'coord_max', condition = input$search_type == 'Coordinates' & input$gene == 'Any')
     shinyjs::toggle(id = 'xrange', condition = input$search_type != 'Coordinates' | input$gene != 'Any')
   })
-
   
-
+  
+  
   # Update gene names
   geneNames <- reactive({
     
@@ -29,13 +29,31 @@ shinyServer(function(input, output, session) {
              if(sum(input$snp_search %in% snp_table$SNP.ID) > 0){
                snp_gene(snp_id = input$snp_search)
              } else{
-               'Genes near selected SNP'
+               'Input SNP ID'
              }
            },
-           'Coordinates' = genes_xrange(xmin = input$coord_min, xmax = input$coord_max, chr = input$coord_chr))
+           'Coordinates' = {
+             if(is.numeric(input$coord_max) & is.numeric(input$coord_min)){
+               if(input$coord_max - input$coord_min >= 0){
+                 genes_xrange(xmin = input$coord_min, xmax = input$coord_max, chr = input$coord_chr)
+               } else{
+                 c()
+               }
+             } else{
+               c()
+             }
+           }
+    )
   })
   
-
+  snp_xrange <- reactive({
+    snp_xrange_temp <- filter(snp_table, SNP.ID == input$snp_search)
+    if(nrow(snp_xrange_temp) > 0){
+      snp_xrange_temp
+    } else{
+      NULL
+    }
+  })
   
   observe({
     if(input$search_type != 'Gene Name'){
@@ -56,7 +74,7 @@ shinyServer(function(input, output, session) {
     
   })
   
-
+  
   
   transcriptID <- eventReactive(input$plot_button, {
     data %>% filter(gene.symbol == input$gene) %>%
@@ -96,7 +114,7 @@ shinyServer(function(input, output, session) {
   #outputOptions(output, 'dims', suspendWhenHidden = FALSE)
   
   gvizCoords <- reactive({
-    getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)
+    getGtfCoords(input$gene)
   })
   
   
@@ -106,6 +124,12 @@ shinyServer(function(input, output, session) {
                         min = input$coord_min - 3E5 - SLOP,
                         max = input$coord_max + 3E5 + SLOP,
                         value = c(input$coord_min, input$coord_max))
+    } else if(input$search_type == 'SNP ID' & input$gene == 'Any'){
+      updateSliderInput(session, 'xrange',
+                        min = snp_xrange()$start - 3E5 - SLOP,
+                        max = snp_xrange()$end + 3E5 + SLOP,
+                        value = c(snp_xrange()$start - SLOP, snp_xrange()$end + SLOP)
+                        )
     } else{
       updateSliderInput(session, 'xrange',
                         min = gvizCoords()[[2]] - 3E5 - SLOP,
@@ -142,34 +166,30 @@ shinyServer(function(input, output, session) {
   gene <- reactiveVal('NEUROG2')
   ymax <- reactiveVal(200)
   xrange <- reactiveVal(c(112463516, 112566180))
-  chrom <- reactiveVal(unlist(getGtfCoords('NEUROG2', ENSEMBL_hg38_local_fromGTF)[1]))
-  
-  # chrom <- reactiveVal({
-  #   if(input$search_type == 'Coordinates'){
-  #     input$coord_chr
-  #   } else{
-  #     gvizCoords()[[1]]
-  #   }
-  # })
+  chrom <- reactiveVal(unlist(getGtfCoords('NEUROG2')[1]))
   
   
   observeEvent(input$plot_button, {
     gene(input$gene)
     ymax(input$ymax)
+    
     xrange({
-      if(input$gene == 'Any'){
+      if(input$gene == 'Any' & input$search_type == 'Coordinates'){
         c(input$coord_min, input$coord_max)
       } else{
         input$xrange
       }
     })
+    
     chrom({
-      if(input$gene == 'Any'){
+      if(input$gene == 'Any' & input$search_type == 'Coordinates'){
         input$coord_chr
+      } else if(input$gene == 'Any' & !is.null(snp_xrange) & input$search_type == 'SNP ID'){
+         as.character(snp_xrange()$chrom)
       } else{
-        unlist(getGtfCoords(input$gene, ENSEMBL_hg38_local_fromGTF)[[1]])
+        unlist(getGtfCoords(input$gene)[[1]])
       }
-      })
+    })
   })
   
   
@@ -193,13 +213,15 @@ shinyServer(function(input, output, session) {
     values_d$greater_less <- debounce(function(){input$greater_less}, 1000)
   })
   
+  # Removing loading message
+  delay(0,hide(id = "loading-content", anim = TRUE, animType = "fade", time = 0.5))
+  
   gvizPlot <- reactive({
     if(gene() == 'Any'){
       plotGenomeView(
         gene.symbol = geneNames(),
         coverage.list = coverage.list,
         ylims = c(0, ymax()),
-        #coords = NULL, #gvizCoords(),
         chr = chrom(),
         beg = xrange()[1],
         END = xrange()[2],
@@ -209,14 +231,14 @@ shinyServer(function(input, output, session) {
         cluster_id = values_d$clusterID(),
         motifs_list = values_d$tf_motifs(),
         selected_rows = values_d$selectedRows(),
-        greater_less = values_d$greater_less()
+        greater_less = values_d$greater_less(),
+        snp_xrange = snp_xrange()
       )
     } else{
       plotGenomeView(
         gene.symbol = gene(),
         coverage.list = coverage.list,
         ylims = c(0, ymax()),
-        #coords = NULL, #gvizCoords(),
         chr = chrom(),
         beg = xrange()[1],
         END = xrange()[2],
@@ -241,7 +263,7 @@ shinyServer(function(input, output, session) {
   outputOptions(output, 'gviz', suspendWhenHidden = FALSE)
   outputOptions(output, 'rnaExpression.ui', suspendWhenHidden = FALSE)
   
-
+  
   
   # Peaks table
   cor.gr_table <- reactive({
@@ -347,7 +369,5 @@ shinyServer(function(input, output, session) {
       )
     }
   )
-  
-  delay(0,hide(id = "loading-content", anim = TRUE, animType = "fade", time = 0.5))
   
 })

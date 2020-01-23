@@ -45,7 +45,7 @@ ui <- navbarPage(title = 'ATAC-Seq',
                             
                             selectInput('search_type', 
                                          label = 'Search Type', 
-                                         choices = c('Gene Name','SNP ID','Coordinates'),
+                                         choices = c('Gene Name','Coordinates','SNP ID'),
                                          selected = 'Gene Name'
                             ),
                             textInput(
@@ -157,19 +157,24 @@ ui <- navbarPage(title = 'ATAC-Seq',
                           # ),
                           mainPanel(
                             width = 10,
-                            shiny::tags$style(type="text/css",
-                                       ".shiny-output-error { visibility: hidden; }",
-                                       ".shiny-output-error:before { visibility: hidden; }"
-                            ),
+                            
                             tabsetPanel(
                               tabPanel('RNA-seq',
                                        uiOutput("rnaExpression.ui")
                                        #plotOutput('rnaExpression') %>% withSpinner(type = 6)
                               ),
                               tabPanel('Table',
+                                       shiny::tags$style(type="text/css",
+                                                         ".shiny-output-error { visibility: hidden; }",
+                                                         ".shiny-output-error:before { visibility: hidden; }"
+                                       ),
                                        dataTableOutput('peaks_table') %>% withSpinner(type = 6)
                               ),
                               tabPanel('ATAC-seq',
+                                       shiny::tags$style(type="text/css",
+                                                         ".shiny-output-error { visibility: hidden; }",
+                                                         ".shiny-output-error:before { visibility: hidden; }"
+                                       ),
                                        plotOutput('gviz', height = 1200) %>% withSpinner(type = 6),
                                        #plotOutput('gvizClust') %>% withSpinner(type = 6),
                                        plotOutput('tf_legend', height = 100)

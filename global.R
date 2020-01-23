@@ -126,7 +126,7 @@ snp_gene <- function(snp_id, table = ENSEMBL_hg38_local_fromGTF, snp_tbl = snp_t
 }
 
 # Find coordinates of gene
-getGtfCoords <- function(GENE, tbl = gtf) {
+getGtfCoords <- function(GENE, tbl = ENSEMBL_hg38_local_fromGTF) {
   
   gtf2 <- tbl[tbl@elementMetadata$gene_name==GENE]
   
