@@ -13,17 +13,13 @@ params:
 ---
 
 ```{r include=FALSE}
+
 library(Gviz)
 library(ggplot2)
 library(ggpubr)
 library(feather)
 library(GenomicRanges)
-# source('/Gviz_Plots.R')
-# 
-# ENSEMBL_hg38_local_fromGTF <- read_feather('/ENSEMBL_hg38_local_fromGTF.feather') %>%
-#   makeGRangesFromDataFrame(keep.extra.columns = T)
-# 
-# transcript_locations <- read_feather('/transcript_locations.feather')
+
 ```
 
 ## Summary for `r params$gene`.
@@ -49,10 +45,6 @@ transcript_end <- if (params$transcriptID == 'Any') {
 }
 
 
-# for(i in 2:14){
-#   x[[i]]@dp@pars$fontsize = 10
-#   x[[i]]@name = LETTERS[i-1]
-# }
 
 plotTracks(
   HighlightTrack(
@@ -81,7 +73,9 @@ if (!is.null(params$tf_legend)) {
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=12, fig.width=12}
+
 x <- params$rnaPlot
 eval(x)
+
 ```
 

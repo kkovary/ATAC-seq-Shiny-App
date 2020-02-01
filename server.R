@@ -156,7 +156,8 @@ shinyServer(function(input, output, session) {
         max = input$coord_max + 3E5 + SLOP,
         value = c(input$coord_min, input$coord_max)
       )
-    } else if (input$search_type == 'SNP ID' & input$gene == 'Any') {
+    } else if (input$search_type == 'SNP ID' &
+               input$gene == 'Any') {
       updateSliderInput(
         session,
         'xrange',
@@ -222,7 +223,8 @@ shinyServer(function(input, output, session) {
       if (input$gene == 'Any' & input$search_type == 'Coordinates') {
         input$coord_chr
       } else if (input$gene == 'Any' &
-                 !is.null(snp_xrange) & input$search_type == 'SNP ID') {
+                 !is.null(snp_xrange) &
+                 input$search_type == 'SNP ID') {
         as.character(snp_xrange()$chrom)
       } else{
         unlist(getGtfCoords(input$gene)[[1]])

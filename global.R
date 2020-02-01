@@ -125,7 +125,7 @@ plotrna <-
         ggtitle(label = sprintf("%s RNA expression", unique(annotated.counts$gene.symbol))) +
         theme(aspect.ratio = 1, legend.position = "bottom") +
         ylab('log2(TPM)') + xlab('Age (Day)') +
-        facet_wrap(~ transcript_id, scales = "free_y", ncol = 4)
+        facet_wrap( ~ transcript_id, scales = "free_y", ncol = 4)
     } else{
       gg <-
         ggplot(data.frame()) + ggtitle('No RNA-seq Data Available') + theme_bw()
@@ -186,19 +186,14 @@ snp_gene <-
     start <- positions$start - SLOP
     end <- positions$end + SLOP
     
-    table <- table[seqnames(table) == as.character(positions$chrom) &
-                     start(table) > positions$start - SLOP &
-                     end(table) < positions$end + SLOP &
-                     elementMetadata(table)$gene_biotype %in% c('protein_coding', 'lncRNA')]
+    table <-
+      table[seqnames(table) == as.character(positions$chrom) &
+              start(table) > positions$start - SLOP &
+              end(table) < positions$end + SLOP &
+              elementMetadata(table)$gene_biotype %in% c('protein_coding', 'lncRNA')]
     table <- c('Any', unique(table$gene_name))
     
     return(table)
-    # if(sum(table %in% gene_names) > 0){
-    #   return(table[table %in% gene_names])
-    # } else{
-    #   return('No genes in range')
-    # }
-    
   }
 
 # Find coordinates of gene
@@ -238,18 +233,6 @@ corFilter <-
            END = NULL,
            chr = NULL,
            gene.name = 'Any') {
-    # if(gene.name != 'Any'){
-    #   new_coords <- getGtfCoords(gene.name, ENSEMBL_hg38_local_fromGTF)
-    #   chr <- new_coords[[1]]
-    #   beg <- new_coords[[2]]
-    #   END <- new_coords[[3]]
-    # }
-    
-    # Filter based on gene
-    # if(gene.name != 'Any'){
-    #   cor_table <- cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
-    # }
-    
     # Filter based on transcript or show all if "Any" gene is displayed
     if (gene.name[1] != 'Any') {
       cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
@@ -257,10 +240,6 @@ corFilter <-
       cor_table = cor_table[elementMetadata(cor_table)$correlated.gene.symbol %in% gene.name]
     }
     
-    # Filter based on transcript
-    # if(!is.na(transcript_ID)){
-    #   cor_table = cor_table[elementMetadata(cor_table)$correlated.transcript.ID %in% transcript_ID]
-    # }
     
     # Filter based on correlation
     if (!is.na(cor_cut)) {
