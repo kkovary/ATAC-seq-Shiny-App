@@ -33,16 +33,17 @@ Include information such as correlation cuttoff, selected transcript, etc.
 
 ```{r echo=FALSE, fig.height=14, fig.width=12}
 
+
 x <- params$gvizPlot
 
-transcript_start <- if(params$transcriptID == 'Any'){
-  getGtfCoords(params$gene,ENSEMBL_hg38_local_fromGTF)[[2]]
+transcript_start <- if (params$transcriptID == 'Any') {
+  getGtfCoords(params$gene, ENSEMBL_hg38_local_fromGTF)[[2]]
 } else{
   filter(transcript_locations, refseq_mrna == params$transcriptID)$transcript_start
 }
 
-transcript_end <- if(params$transcriptID == 'Any'){
-  getGtfCoords(params$gene,ENSEMBL_hg38_local_fromGTF)[[3]]
+transcript_end <- if (params$transcriptID == 'Any') {
+  getGtfCoords(params$gene, ENSEMBL_hg38_local_fromGTF)[[3]]
 } else{
   filter(transcript_locations, refseq_mrna == params$transcriptID)$transcript_end
 }
@@ -53,21 +54,27 @@ transcript_end <- if(params$transcriptID == 'Any'){
 #   x[[i]]@name = LETTERS[i-1]
 # }
 
-plotTracks(HighlightTrack(x[1:(length(x)-1)],
-                            start = transcript_start,
-                            end = transcript_end,
-                            chr = params$chr), col.title = 'black', 
-           from = params$xrange[1], to = params$xrange[2])
-
-
+plotTracks(
+  HighlightTrack(
+    x[1:(length(x) - 1)],
+    start = transcript_start,
+    end = transcript_end,
+    chr = params$chr,
+    col = '#EEEEEE',
+    fill = '#EEEEEE'
+  ),
+  col.title = 'black',
+  from = params$xrange[1],
+  to = params$xrange[2]
+)
 
 
 ```
 
 ```{r echo=FALSE, fig.height=1, fig.width=12}
 
-if(!is.null(params$tf_legend)){
- params$tf_legend
+if (!is.null(params$tf_legend)) {
+  params$tf_legend
 }
 
 ```
