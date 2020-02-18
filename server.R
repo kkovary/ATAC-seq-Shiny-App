@@ -1,4 +1,30 @@
 
+### Import data
+data <-
+  read_feather('Data/lite_bc_annotated_rna_dataframe_long.feather')
+
+peaks.gr <- readRDS('Data/All_Merged_Peaks_GenomicRanges.RDS')
+
+cor.gr <-
+  read_feather('Data/Webpage_Table_Display_nocolors.feather') %>%
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+
+
+
+
+ENSEMBL_Gviz_GeneTrackRegionObject <-
+  readRDS('Data/ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
+
+
+snp_table <- read_feather('Data/SNP_Lookup_Table.feather')
+
+# var_names <- paste0('cov_',1:13)
+# 
+# for(i in 1:length(var_names)){
+#   assign(var_names[i], value = read_feather(new_files[i]))
+# }
+
+### Server function
 
 shinyServer(function(input, output, session) {
   output$cluster_select <-
@@ -279,15 +305,20 @@ shinyServer(function(input, output, session) {
         ))
   
   gvizPlot <- reactive({
+    
     if (gene() == 'Any') {
       plotGenomeView(
         gene.symbol = geneNamesUpdate(),
         coverage.list = coverage.list,
+        ENSEMBL_Gviz_GeneTrackRegionObject = ENSEMBL_Gviz_GeneTrackRegionObject,
+        anno.gr = peaks.gr,
+        cor.gr = cor.gr,
         ylims = c(0, ymax()),
         chr = chrom(),
         beg = xrange()[1],
         END = xrange()[2],
         transcriptID = values_d$transcriptID(),
+        transcript_locations = transcript_locations,
         corCut = values_d$cor_cut(),
         pval_cut = values_d$pval_cut(),
         cluster_id = values_d$clusterID(),
@@ -300,11 +331,15 @@ shinyServer(function(input, output, session) {
       plotGenomeView(
         gene.symbol = gene(),
         coverage.list = coverage.list,
+        anno.gr = peaks.gr,
+        cor.gr = cor.gr,
+        ENSEMBL_Gviz_GeneTrackRegionObject = ENSEMBL_Gviz_GeneTrackRegionObject,
         ylims = c(0, ymax()),
         chr = chrom(),
         beg = xrange()[1],
         END = xrange()[2],
         transcriptID = values_d$transcriptID(),
+        transcript_locations = transcript_locations,
         corCut = values_d$cor_cut(),
         pval_cut = values_d$pval_cut(),
         cluster_id = values_d$clusterID(),
@@ -313,7 +348,6 @@ shinyServer(function(input, output, session) {
         greater_less = values_d$greater_less()
       )
     }
-    
   })
   
   
@@ -437,7 +471,8 @@ shinyServer(function(input, output, session) {
         tf_legend = tf_legend(),
         rnaPlot = rnaPlot(),
         transcriptID = input$transcriptID,
-        chr = chrom()
+        chr = chrom(),
+        ENSEMBL_Gviz_GeneTrackRegionObject = ENSEMBL_Gviz_GeneTrackRegionObject
       )
       
       # Knit the document, passing in the `params` list, and eval it in a
