@@ -36,12 +36,15 @@ plotGenomeView <- function(gene.symbol = GENE,
                            slop = SLOP,
                            genome = "hg38",
                            anno.gr = peaks.gr,
+                           cor.gr = cor.gr,
+                           ENSEMBL_Gviz_GeneTrackRegionObject = ENSEMBL_Gviz_GeneTrackRegionObject,
                            coverage.list,
                            ylims = c(0, 100),
                            chr = NULL,
                            beg = NULL,
                            END = NULL,
                            transcriptID = NULL,
+                           transcript_locations = transcript_locations,
                            corCut = 0,
                            pval_cut = 1,
                            cluster_id = NULL,
@@ -65,7 +68,8 @@ plotGenomeView <- function(gene.symbol = GENE,
   idxTrack <-
     IdeogramTrack(genome = genome,
                   chromosome = chr,
-                  fontsize = 20)
+                  fontsize = 20,
+                  bands = ideo_data)
   
   print("filtering")
   filt.gr <-

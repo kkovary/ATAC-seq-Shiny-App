@@ -14,10 +14,25 @@ library(shinyjs)
 library(shinysky)
 library(DT)
 library(shinyWidgets)
+library(feather)
 library(ggsci)
 library(ggpubr)
-library(feather)
 source('Gviz_Plots.R')
+
+# Load Global Data
+gene_names <- readRDS('Data/gene_names.RDS')
+chromosomes <- c(paste0('chr', c(1:22, 'X', 'Y')))
+motifs <- readRDS('Data/Motif_SummarizedExperiment.RDS')
+
+ENSEMBL_hg38_local_fromGTF <-
+  read_feather('Data/ENSEMBL_hg38_local_fromGTF.feather') %>%
+  makeGRangesFromDataFrame(keep.extra.columns = T)
+
+transcript_locations <-
+  read_feather('Data/transcript_locations.feather')
+
+ideo_data <- read_feather('Data/ideo_data.feather')
+
 
 
 my_names <- c(
@@ -63,35 +78,6 @@ my_colors <-
   )
 
 SLOP = 50000
-
-data <-
-  read_feather('Data/lite_bc_annotated_rna_dataframe_long.feather')
-
-ENSEMBL_hg38_local_fromGTF <-
-  read_feather('Data/ENSEMBL_hg38_local_fromGTF.feather') %>%
-  makeGRangesFromDataFrame(keep.extra.columns = T)
-
-
-gene_names <- readRDS('Data/gene_names.RDS')
-
-chromosomes <- c(paste0('chr', c(1:22, 'X', 'Y')))
-
-peaks.gr <- readRDS('Data/All_Merged_Peaks_GenomicRanges.RDS')
-
-cor.gr <-
-  read_feather('Data/Webpage_Table_Display_nocolors.feather') %>%
-  makeGRangesFromDataFrame(keep.extra.columns = T)
-
-motifs <- readRDS('Data/Motif_SummarizedExperiment.RDS')
-
-
-ENSEMBL_Gviz_GeneTrackRegionObject <-
-  readRDS('Data/ENSEMBL_translated_Gviz_GeneTrackRegionObject.RDS')
-
-transcript_locations <-
-  read_feather('Data/transcript_locations.feather')
-
-snp_table <- read_feather('Data/SNP_Lookup_Table.feather')
 
 # Functions
 
