@@ -23,7 +23,8 @@ library(ggpubr)
 source('Gviz_Plots.R')
 
 # Load Global Data
-gene_names <- readRDS('Data/gene_names.RDS')
+#gene_names <- readRDS('Data/gene_names.RDS')
+gene_names <- as.vector(read_feather('Data/gene_names.feather')$gene_names)
 chromosomes <- c(paste0('chr', c(1:22, 'X', 'Y')))
 motifs <- readRDS('Data/Motif_SummarizedExperiment.RDS')
 
