@@ -305,7 +305,7 @@ plotGenomeView <- function(gene.symbol = GENE,
 color.scheme <- read_csv('Data/Color_Scheme.csv')
 
 coverage.files <- color.scheme$file
-strsplits <- str_split(coverage.files, "_")
+strsplits <- strsplit(coverage.files, "_")
 coverage.names <-
   sapply(strsplits, function(x)
     paste(x[c(5, 2, 3)], collapse = " "))

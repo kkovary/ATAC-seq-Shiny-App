@@ -8,7 +8,10 @@
 # reading csv is faster than rds
 
 library(shiny)
-library(tidyverse)
+#library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readr)
 library(shinycssloaders)
 library(shinyjs)
 library(shinysky)
